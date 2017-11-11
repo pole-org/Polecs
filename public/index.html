@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>破浪管理系统</title>
+  <link rel="icon" href="https://gw.alipayobjects.com/zos/rmsportal/IOtlElCiWVIOZqgDslYd.png" type="image/x-icon">
+  <link rel="stylesheet" href="index.css"/>
+  <style>
+    /*::-webkit-scrollbar {*/
+    /*width: 10px;*/
+    /*height: 10px;*/
+    /*}*/
+    /*!* 轨道样式 *!*/
+    /*::-webkit-scrollbar-track {*/
+    /*}*/
+
+    /*!* Handle样式 *!*/
+    /*::-webkit-scrollbar-thumb {*/
+    /*border-radius: 10px;*/
+    /*background: transparent;*/
+    /*}*/
+
+    /*!*当前窗口未激活的情况下*!*/
+    /*::-webkit-scrollbar-thumb:window-inactive {*/
+    /*background: rgba(0, 0, 0, 0.3);*/
+    /*}*/
+
+    /*!*hover到滚动条上*!*/
+    /*::-webkit-scrollbar-thumb:vertical:hover {*/
+    /*background-color: rgba(0, 0, 0, 0.5);*/
+    /*}*/
+
+    /*!*滚动条按下*!*/
+    /*::-webkit-scrollbar-thumb:vertical:active {*/
+    /*background-color: rgba(0, 0, 0, 0.7);*/
+    /*}*/
+
+    #my-loading-service {
+
+    }
+
+    #my-loading-service .loadingMask {
+      height: 100vh;
+      width: 100vw;
+      top: 0;
+      z-index: 10000;
+      position: fixed;
+      background-color: rgba(0, 0, 0, 0.65);
+      left: 0;
+    }
+
+    #my-loading-service .loadingMask .loadingSpinner {
+      top: 50%;
+      margin-top: -21px;
+      width: 100%;
+      text-align: center;
+      position: absolute;
+    }
+
+    #my-loading-service .loadingMask .loadingSpinner i {
+      color: #409eff;
+      font-size: 25px;
+    }
+
+    #my-loading-service .loadingMask .loadingSpinner .loadingText {
+      color: #409eff;
+      margin: 3px 0;
+      font-size: 14px;
+    }
+
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<div id="my-loading-service" style="display: none">
+  <div class="loadingMask">
+    <div class="loadingSpinner">
+      <i class="anticon anticon-spin anticon-loading"></i>
+      <p id="my-loading-service-tip" class='loadingText'></p>
+    </div>
+  </div>
+</div>
+<script
+  src="https://gw.alipayobjects.com/as/g/??datavis/g2/2.3.12/index.js,datavis/g-cloud/1.0.2/index.js,datavis/g2-plugin-slider/1.2.1/slider.js"></script>
+<script src="index.js"></script>
+</body>
+</html>
