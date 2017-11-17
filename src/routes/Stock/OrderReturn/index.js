@@ -1,6 +1,6 @@
 import React, {PureComponent, Component} from 'react';
 import {connect} from 'dva';
-import {Card, Form, Button, Table, Input, Modal, Select, Tag, Badge, Alert, Checkbox} from 'antd';
+import {Card, Form, Button, Table, Input, Modal, Select, Tag, Badge, Alert, Checkbox, Dropdown, Menu, Icon} from 'antd';
 import CountDown from 'ant-design-pro/lib/CountDown';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
 import ProductInfo from '../../../myComponents/ProductInfo/';
@@ -149,11 +149,26 @@ export default class StockProductSku extends PureComponent {
         key: 'op',
         width: 150,
         render: (text, record) => {
+          const menu = (
+            <Menu>
+              <Menu.Item>
+                <a onClick={() => this.cancel(record.id)}>作废</a>
+              </Menu.Item>
+            </Menu>
+          );
+
+          const MoreBtn = () => (
+            <Dropdown overlay={menu}>
+              <a>
+                更多 <Icon type="down"/>
+              </a>
+            </Dropdown>
+          );
           return (
             <div>
               <a onClick={() => this.openModal(record)}>收货</a>
               <span className="ant-divider"/>
-              <a onClick={() => this.openModal(record)}>作废</a>
+              <MoreBtn/>
             </div>
           );
         },
@@ -236,6 +251,28 @@ export default class StockProductSku extends PureComponent {
       }).then(() => {
         this.closeModal();
       });
+    });
+  }
+
+  cancel = (id) => {
+    const {model} = this.props;
+    Modal.confirm({
+      title: '确认作废',
+      content: '确定要将此申请作废吗,确定后无法撤销',
+      okText: '确认',
+      cancelText: '取消',
+      onOk: () => {
+        model.dispatch({
+          type: 'cancel',
+          payload: {
+            id,
+          },
+        }).then((res) => {
+          if (res) {
+            this.handleSearch()
+          }
+        });
+      },
     });
   }
 

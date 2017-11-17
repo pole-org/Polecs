@@ -3,7 +3,7 @@ import {routerRedux} from 'dva/router';
 import {message} from 'antd';
 import pathToRegExp from 'path-to-regexp';
 import BaseModel from './extra/base.model';
-import {load} from '../services/stock/orderReturn.service';
+import {load, cancel} from '../services/stock/orderReturn.service';
 import {getWar, getHj, changeHj} from '../services/stock/warehouse.service';
 
 export default modelExtend(BaseModel, {
@@ -26,8 +26,7 @@ export default modelExtend(BaseModel, {
   effects: {
     *load({payload}, {call, put}) {
       const data = yield call(load, payload);
-      console.log(data)
-      if (data) {
+      if (data.success) {
         yield put({
           type: 'setStateOk',
           payload: {
@@ -38,6 +37,13 @@ export default modelExtend(BaseModel, {
           },
         });
       }
+    },
+    *cancel({payload}, {call, put}) {
+      const data = yield call(cancel, payload);
+      if (data.success) {
+        message.success(data.msg)
+      }
+      return Promise.resolve(data.success);
     },
     *getWar({payload}, {call, put}) {
       const data = yield call(getWar, payload);

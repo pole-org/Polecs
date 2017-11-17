@@ -258,6 +258,9 @@ class BasicLayout extends React.PureComponent {
         NProgress.done();
         lastHref = href;
       }
+      setTimeout(() => {
+        NProgress.done();
+      }, 10000)
     }
     const menu = (
       <Menu className={styles.menu} selectedKeys={[]} onClick={this.onMenuClick}>
