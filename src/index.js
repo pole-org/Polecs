@@ -1,11 +1,13 @@
 import dva from 'dva';
 import 'moment/locale/zh-cn';
 import createLoading from 'dva-loading';
+import 'ant-design-pro/dist/ant-design-pro.css';
 import models from './models';
 import './polyfill';
 import './g2';
 // import { browserHistory } from 'dva/router';
 import './index.less';
+
 
 // 1. Initialize
 const app = dva({

@@ -21,6 +21,9 @@ date.format = (dateObj, fmt) => {
 }
 
 date.toString = function (str, format) {
+  if (str === undefined || str === '' || str === null) {
+    return null;
+  }
   format = format === undefined ? 'yyyy-MM-dd hh:mm:ss' : format;
   let dateTime = new Date(parseInt(str.substring(6, str.length - 2)));
   format = format.replace("yyyy", dateTime.getFullYear());

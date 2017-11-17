@@ -4,12 +4,13 @@ import pathToRegExp from 'path-to-regexp';
 import {message} from 'antd';
 import BaseModel from './extra/base.model';
 import {
+  loadDeliveryPlan,
+  loadDeliveryPlanDetail,
   loadBoxSkuInfo,
   returnBoxSku,
   loadDeliverySkuInfo,
   outStock,
 } from '../services/logistic/logistic.bulkDelivery.service';
-
 import rs from '../rs/';
 
 const {util: {url}} = rs;
@@ -17,15 +18,64 @@ const {util: {url}} = rs;
 export default modelExtend(BaseModel, {
   namespace: 'logistic_bulkDelivery',
   state: {
+    deliveryPlanData: {
+      list: [],
+      total: 0,
+    },
+    deliveryPlanDataDetail: {
+      entity: {
+        applyUser: '',
+        apply_date: null,
+        status: '',
+      },
+      processList:[],
+      skuList:[],
+      boxList:[],
+    },
+    pageIndex: 1,
     box: {},
     boxSkuList: [],
     boxApplySkuList: [],
     modalList: [],
     updateList: [],
-    updateListKeys:[],
+    updateListKeys: [],
   },
 
   effects: {
+    *loadDeliveryPlan({payload}, {call, put}) {
+      const data = yield call(loadDeliveryPlan, payload);
+      console.log(data)
+      if (data) {
+        yield put({
+          type: 'setStateOk',
+          payload: {
+            deliveryPlanData: {
+              list: data.planDataList,
+              total: data.total,
+            },
+          },
+        });
+      }
+    },
+    *showDetail({payload}, {put}) {
+      yield put(routerRedux.push(`/logistics/bulkDelivery/detail/${payload.query.serialNo}`));
+    },
+    *loadDeliveryPlanDetail({payload}, {call, put}) {
+      const data = yield call(loadDeliveryPlanDetail, payload);
+      if (data) {
+        yield put({
+          type: 'setStateOk',
+          payload: {
+            deliveryPlanDataDetail: {
+              entity: data.planDetail,
+              processList:data.planProcessList,
+              skuList:data.skuList,
+              boxList:data.boxList,
+            },
+          },
+        });
+      }
+    },
     *loadBoxSkuInfo({payload}, {call, put}) {
       const data = yield call(loadBoxSkuInfo, payload);
       if (data) {
@@ -47,7 +97,7 @@ export default modelExtend(BaseModel, {
           type: 'setStateOk',
           payload: {
             updateList: [],
-            updateListKeys:[],
+            updateListKeys: [],
           },
         });
         yield put({
@@ -105,13 +155,12 @@ export default modelExtend(BaseModel, {
     setup({history, dispatch}) {
       // Subscribe history(url) change, trigger `load` action if pathname is `/`
       return history.listen(({pathname}) => {
-        const match = pathToRegExp('/logistics/bulkDelivery/box/sku').exec(pathname);
+        const match = pathToRegExp('/logistics/bulkDelivery/detail/:no').exec(pathname);
         if (match) {
           dispatch({
-            type: 'loadBoxSkuInfo',
+            type: `loadDeliveryPlanDetail`,
             payload: {
-              planId: url.query('planId'),
-              boxId: url.query('boxId'),
+              serialNo: match[1],
             },
           });
         }

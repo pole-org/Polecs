@@ -1,5 +1,6 @@
 import modelExtend from 'dva-model-extend';
 import {queryNotices} from '../services/api';
+import {loadMyShop} from '../services/option.service';
 import BaseModel from './extra/base.model';
 
 export default modelExtend(BaseModel, {
@@ -9,6 +10,7 @@ export default modelExtend(BaseModel, {
     collapsed: false,
     notices: [],
     fetchingNotices: false,
+    myShop: [],
   },
 
   effects: {
@@ -34,6 +36,17 @@ export default modelExtend(BaseModel, {
         type: 'saveClearedNotices',
         payload,
       });
+    },
+    *loadMyShop(_, {put, call}) {
+      const data = yield call(loadMyShop);
+      if (data) {
+        yield put({
+          type: 'setStateOk',
+          payload: {
+            myShop: data.shopList,
+          },
+        });
+      }
     },
   },
 

@@ -15,10 +15,13 @@ const RadioButton = Radio.Button;
   })
 )
 @Form.create()
-export default class TableList extends PureComponent {
+@rs.component.injectRole('stock_outStock')
+@rs.component.injectModel('stock_outStock')
+@rs.component.injectPagination({model: 'stock_outStock'})
+export default class StockOutStock extends PureComponent {
   state = {
     typeOptions: [
-      {label: '大货装箱', value: 0},
+      {label: '大货发货', value: 0},
       {label: '订单发货', value: 1},
     ],
     columns: [
@@ -40,13 +43,13 @@ export default class TableList extends PureComponent {
           let res = ''
           switch (text) {
             case 0:
-              res = '大货装箱';
+              res = '大货发货';
               break;
             case 1:
               res = '订单发货';
               break;
             default:
-              res = '大货装箱';
+              res = '大货发货';
           }
           return (<Tag>{res}</Tag>);
         },
@@ -116,24 +119,14 @@ export default class TableList extends PureComponent {
     ],
   };
 
-  componentWillMount() {
-    const {dispatch} = this.props;
-    dispatch({
-      type: 'user/validRole',
-      payload: {
-        roleCode: 'stock_outStock',
-      },
-    });
-  }
-
   componentDidMount() {
     this.handleSearch();
   }
 
   showDetail = (serialNo) => {
-    const {dispatch} = this.props;
-    dispatch({
-      type: 'stock_outStock/showDetail',
+    const {model} = this.props;
+    model.dispatch({
+      type: 'showDetail',
       payload: {
         query: {
           serialNo,
@@ -143,7 +136,7 @@ export default class TableList extends PureComponent {
   }
 
   handleSearch = () => {
-    const {outStock: {query}, dispatch, form} = this.props;
+    const {outStock: {query, pageIndex, pageSize}, form, model} = this.props;
     form.validateFields((err, fieldsValue) => {
       if (err) return;
       const values = {
@@ -151,25 +144,23 @@ export default class TableList extends PureComponent {
           : fieldsValue.startDate.format('YYYY-MM-DD HH:MM:SS'),
         applyTypeList: fieldsValue.applyTypeList,
       };
-      dispatch({
-        type: 'stock_outStock/loadList',
-        payload: {
-          ...query,
-          ...values,
-        },
+      model.call('loadList', {
+        ...query,
+        pageIndex,
+        pageSize,
+        ...values,
       });
     });
   }
 
   changeType = (status) => {
-    const {outStock: {query}, dispatch} = this.props;
-    dispatch({
-      type: 'stock_outStock/setState',
-      payload: {
-        query: {
-          ...query,
-          status,
-        },
+    const {outStock: {query, pageIndex, pageSize}, model} = this.props;
+    model.setState({
+      query: {
+        ...query,
+        pageIndex,
+        pageSize,
+        status,
       },
     }).then(() => {
       this.handleSearch();
@@ -193,51 +184,27 @@ export default class TableList extends PureComponent {
           )}
         </FormItem>
         <FormItem>
-          <Button type="primary" icon="search" style={{marginRight: '10px'}}
-                  onClick={() => this.handleSearch()}>查询</Button>
+          <Button
+            type="primary"
+            icon="search"
+            style={{marginRight: '10px'}}
+            onClick={() => this.handleSearch()}
+          >查询
+          </Button>
         </FormItem>
       </Form>
     );
   }
 
   render() {
-    const {outStock: {data: {list, total}, query}, loading, dispatch} = this.props;
+    const {
+      outStock: {
+        query: {status},
+        data: {list, total}, pageIndex,
+        pageSize,
+      }, loading, pagination, model,
+    } = this.props;
     const {columns} = this.state;
-    const pagination = {
-      showSizeChanger: true,
-      showTotal: (value) => {
-        return `共 ${value}条数据`;
-      },
-      total,
-      current: query.pageIndex,
-      onChange: (pageIndex) => {
-        dispatch({
-          type: 'stock_outStock/setState',
-          payload: {
-            query: {
-              ...query,
-              pageIndex,
-            },
-          },
-        }).then(() => {
-          this.handleSearch();
-        });
-      },
-      onShowSizeChange: (current, size) => {
-        localStorage.setItem('pageSize', size);
-        dispatch({
-          type: 'stock_outStock/setState',
-          payload: {
-            query: {
-              ...query,
-              pageIndex: 1,
-            },
-          },
-        }).then(() => {
-          this.handleSearch();
-        });
-      },
-    };
     return (
       <PageHeaderLayout >
         <Card bordered={false}>
@@ -245,7 +212,7 @@ export default class TableList extends PureComponent {
             {this.renderForm()}
           </div>
           <div style={{marginBottom: 10}}>
-            <RadioGroup value={query.status} onChange={e => this.changeType(e.target.value)}>
+            <RadioGroup value={status} onChange={e => this.changeType(e.target.value)}>
               <RadioButton value={0}>新的申请</RadioButton>
               <RadioButton value={3}>正在捡货</RadioButton>
               <RadioButton value={4}>拣货完成</RadioButton>
@@ -253,10 +220,11 @@ export default class TableList extends PureComponent {
             </RadioGroup>
           </div>
           <Table
+            size="middle"
             columns={columns}
-            loading={loading.effects['stock_outStock/loadList']}
+            loading={loading.effects[`${model.name}/loadList`]}
             dataSource={list}
-            pagination={pagination}
+            pagination={pagination({pageIndex, pageSize, total}, this.handleSearch)}
           />
         </Card>
       </PageHeaderLayout>

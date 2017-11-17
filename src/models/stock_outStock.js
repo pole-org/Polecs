@@ -36,9 +36,8 @@ export default modelExtend(BaseModel, {
     },
     query: {
       status: 0,
-      pageIndex: 1,
-      pageSize: localStorage.getItem('pageSize') == null ? 10 : parseInt(localStorage.getItem('pageSize')),
     },
+    pageIndex: 1,
     updateList: [],
   },
 

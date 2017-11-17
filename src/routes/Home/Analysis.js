@@ -6,13 +6,14 @@ import rs from '../../rs/';
 
 const FormItem = Form.Item;
 
-
 @connect(state => ({
     home: state.home,
     loading: state.loading,
   })
 )
 @Form.create()
+@rs.component.injectRole('home_analysis')
+@rs.component.injectModel('home')
 export default class TableList extends PureComponent {
   state = {
     columns: [
@@ -68,16 +69,6 @@ export default class TableList extends PureComponent {
     ],
   };
 
-  componentWillMount() {
-    const {dispatch} = this.props;
-    dispatch({
-      type: 'user/validRole',
-      payload: {
-        roleCode: 'home_analysis',
-      },
-    });
-  }
-
   getPercentRange = (one, two) => {
     if (two === 0 || two === null) {
       return '';
@@ -101,18 +92,14 @@ export default class TableList extends PureComponent {
 
   handleSearch = (e) => {
     e.preventDefault();
-    const {dispatch, form} = this.props;
+    const {form, model} = this.props;
     form.validateFields((err, fieldsValue) => {
       if (err) return;
       const values = {
         startMonth: fieldsValue.startDate.format('YYYY-MM-DD'),
         endMonth: fieldsValue.endDate.format('YYYY-MM-DD'),
       };
-
-      dispatch({
-        type: 'home/fetchList',
-        payload: values,
-      });
+      model.call('fetchList', values);
     });
   }
 
@@ -171,7 +158,7 @@ export default class TableList extends PureComponent {
   }
 
   render() {
-    const {home: {data}, loading} = this.props;
+    const {home: {data}, loading, model} = this.props;
     const {columns} = this.state
     return (
       <PageHeaderLayout >
@@ -182,7 +169,7 @@ export default class TableList extends PureComponent {
           <Table
             bordered
             columns={columns}
-            loading={loading.effects['home/fetchList']}
+            loading={loading.effects[`${model.name}/fetchList`]}
             dataSource={data.list}
             pagination={false}
             scroll={{y: 500}}

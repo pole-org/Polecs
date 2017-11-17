@@ -173,7 +173,7 @@ export default class OutStockApplyDetail extends Component {
     let text = '';
     switch (type) {
       case 0:
-        text = '大货装箱';
+        text = '大货发货';
         break;
       case 1:
         text = '订单发货';
@@ -403,27 +403,26 @@ export default class OutStockApplyDetail extends Component {
                     <Step title="出库完成" description={this.createDesc('出库成功')}/>
                   </Steps>
                 </Card>
-                {applyInfo.apply_status === 98 ?
-                  <Card
-                    title="SKU列表"
-                    bordered={false}
-                    style={{marginBottom: 24}}
-                    extra={updateList.length > 0 ?
-                      <Button
-                        type="primary"
-                        size="small"
-                        onClick={() => this.confirmPicking('more')}
-                      >批量捡货
-                      </Button> : null}
-                  >
-                    <Table
-                      rowSelection={skuList.some(x => x.status === 0) ? rowSelection : null}
-                      pagination={false}
-                      dataSource={skuList}
-                      selectedRowKeys={this.state.updateList}
-                      columns={this.state.skuColumns}
-                    />
-                  </Card> : null}
+                <Card
+                  title="SKU列表"
+                  bordered={false}
+                  style={{marginBottom: 24}}
+                  extra={updateList.length > 0 ?
+                    <Button
+                      type="primary"
+                      size="small"
+                      onClick={() => this.confirmPicking('more')}
+                    >批量捡货
+                    </Button> : null}
+                >
+                  <Table
+                    rowSelection={skuList.some(x => x.status === 0) ? rowSelection : null}
+                    pagination={false}
+                    dataSource={skuList}
+                    selectedRowKeys={this.state.updateList}
+                    columns={this.state.skuColumns}
+                  />
+                </Card>
                 <Card bordered={false} title="操作日志">
                   <Table pagination={false} dataSource={processList} columns={columns}/>
                 </Card>

@@ -26,6 +26,7 @@ ajax.interceptors.response.use((res) => {
       if (res.data.msg !== '') {
         message.error(res.data.msg);
       }
+      loadingService.done();
       return Promise.resolve(res.data);
     } else {
       return Promise.resolve(res.data);

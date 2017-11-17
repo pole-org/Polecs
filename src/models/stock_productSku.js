@@ -3,11 +3,10 @@ import {routerRedux} from 'dva/router';
 import {message} from 'antd';
 import pathToRegExp from 'path-to-regexp';
 import BaseModel from './extra/base.model';
-import {load} from '../services/stock/orderReturn.service';
-import {getWar, getHj, changeHj} from '../services/stock/warehouse.service';
+import {loadSku, getWar, getHj, changeHj} from '../services/stock/productSku.service';
 
 export default modelExtend(BaseModel, {
-  namespace: 'stock_orderReturn',
+  namespace: 'stock_productSku',
   state: {
     data: {
       list: [],
@@ -24,16 +23,15 @@ export default modelExtend(BaseModel, {
   },
 
   effects: {
-    *load({payload}, {call, put}) {
-      const data = yield call(load, payload);
-      console.log(data)
+    *loadSku({payload}, {call, put}) {
+      const data = yield call(loadSku, payload);
       if (data) {
         yield put({
           type: 'setStateOk',
           payload: {
             data: {
-              list: data.list,
-              total: data.count,
+              list: data.skuList,
+              total: data.total,
             },
           },
         });
@@ -82,10 +80,10 @@ export default modelExtend(BaseModel, {
     setup({history, dispatch}) {
       // Subscribe history(url) change, trigger `load` action if pathname is `/`
       return history.listen(({pathname}) => {
-        const match = pathToRegExp('/stock/orderReturn').exec(pathname);
+        const match = pathToRegExp('/stock/sku').exec(pathname);
         if (match) {
           dispatch({
-            type: 'load',
+            type: 'loadSku',
             payload: {
               pageIndex: 1,
               pageSize: localStorage.getItem('pageSize') == null ? 10 : parseInt(localStorage.getItem('pageSize')),
