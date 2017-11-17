@@ -43,6 +43,9 @@ const http = {
   post(url, params) {
     return ajax.post(url, params);
   },
+  get(url, params) {
+    return ajax.get(url, params);
+  },
 }
 
 export default http;

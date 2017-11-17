@@ -2,21 +2,21 @@ const excel = {}
 
 excel.export = (JSONData, FileName, ShowLabel) => {
   let arrData = typeof JSONData !== 'object' ? JSON.parse(JSONData) : JSONData;
-  let excel = '<table>';
+  let table = '<table>';
   let row = "<tr>";
-  for (let i = 0, l = ShowLabel.length; i < l; i++) {
+  for (let i = 0, l = ShowLabel.length; i < l; i += 1) {
     row += "<td>" + ShowLabel[i].value + '</td>';
   }
-  excel += row + "</tr>";
-  for (let i = 0; i < arrData.length; i++) {
-    let row = "<tr>";
+  table += row + "</tr>";
+  for (let i = 0; i < arrData.length; i += 1) {
+    let row1 = "<tr>";
     for (let index in arrData[i]) {
       let value = arrData[i][index].value === "." ? "" : arrData[i][index].value;
-      row += '<td>' + value + '</td>';
+      row1 += '<td>' + value + '</td>';
     }
-    excel += row + "</tr>";
+    table += row1 + "</tr>";
   }
-  excel += "</table>";
+  table += "</table>";
   let excelFile = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:x='urn:schemas-microsoft-com:office:excel' xmlns='http://www.w3.org/TR/REC-html40'>";
   excelFile += '<meta http-equiv="content-type" content="application/vnd.ms-excel; charset=UTF-8">';
   excelFile += '<meta http-equiv="content-type" content="application/vnd.ms-excel';
