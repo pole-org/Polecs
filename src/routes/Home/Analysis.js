@@ -30,6 +30,7 @@ export default class TableList extends PureComponent {
         width: 150,
         sortOrder: true,
         render: (text) => {
+          text = text === null ? 0 : text;
           return (<span style={{float: 'right'}}>{'$' + text}</span>);
         },
       },
