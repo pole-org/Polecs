@@ -1,6 +1,7 @@
 export default {
   namespace: 'BaseModel',
   state: {
+    pageIndex:1,
     pageSize: localStorage.getItem('pageSize') === null ? 10
       : parseInt(localStorage.getItem('pageSize')),
   },
@@ -13,7 +14,6 @@ export default {
 
   effects: {
     *setState({payload}, {put}) {
-      console.log(payload)
       yield put({
         type: 'setStateOk',
         payload,

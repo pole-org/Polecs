@@ -3,8 +3,8 @@ import {routerRedux} from 'dva/router';
 import {message} from 'antd';
 import pathToRegExp from 'path-to-regexp';
 import BaseModel from './extra/base.model';
-import {load, cancel} from '../services/stock/orderReturn.service';
-import {getWar, getHj, changeHj} from '../services/stock/warehouse.service';
+import {load, cancel, receive} from '../services/stock/orderReturn.service';
+import {getWar, getHj} from '../services/stock/warehouse.service';
 
 export default modelExtend(BaseModel, {
   namespace: 'stock_orderReturn',
@@ -67,18 +67,12 @@ export default modelExtend(BaseModel, {
         });
       }
     },
-    *changeHj({payload}, {call, put}) {
-      const data = yield call(changeHj, payload);
+    *receive({payload}, {call, put}) {
+      const data = yield call(receive, payload);
       if (data.success) {
-        yield put({
-          type: 'loadSku',
-          payload: {
-            pageIndex: 1,
-            pageSize: localStorage.getItem('pageSize') == null ? 10 : parseInt(localStorage.getItem('pageSize')),
-          },
-        });
         message.success(data.msg);
       }
+      return Promise.resolve(data.success);
     },
   },
 

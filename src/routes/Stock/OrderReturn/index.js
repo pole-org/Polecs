@@ -14,16 +14,15 @@ const FormItem = Form.Item;
 const Option = Select.Option;
 
 @connect(state => ({
-    orderReturn: state.stock_orderReturn,
-    loading: state.loading,
-    myShop: state.global.myShop,
-  })
-)
+  orderReturn: state.stock_orderReturn,
+  loading: state.loading,
+  myShop: state.global.myShop,
+}))//注入state
 @Form.create()
-@rs.component.injectRole('stock_orderReturn')
-@rs.component.injectModel('stock_orderReturn')
-@rs.component.injectPagination({model: 'stock_orderReturn'})
-@rs.component.injectOption('loadMyShop')
+@rs.component.injectRole('stock_orderReturn')//注入权限验证
+@rs.component.injectModel('stock_orderReturn')//注入model
+@rs.component.injectPagination({model: 'stock_orderReturn'})//注入分页器
+@rs.component.injectOption('loadMyShop')//注入选项值
 export default class StockProductSku extends PureComponent {
   state = {
     columns: [
@@ -176,12 +175,12 @@ export default class StockProductSku extends PureComponent {
     ],
     visible: false,
     record: {},
+    skuCodeDisabled: true,
   };
 
-  componentDidMount() {
-  }
-
-
+  /**
+   * 全局的加载方法
+   */
   handleSearch = () => {
     const {orderReturn: {pageIndex, pageSize}, model, form, myShop} = this.props;
     form.validateFields((err, fieldsValue) => {
@@ -190,6 +189,12 @@ export default class StockProductSku extends PureComponent {
       const shopId = rs.util.string.isNullOrEmpty(fieldsValue.shopName) ?
         null : myShop.filter(x => x.shopName === fieldsValue.shopName)[0].shopId;
       const isOk = fieldsValue.isOk === undefined ? false : fieldsValue.isOk;
+      model.setState({
+        data: {
+          list: [],
+          total: 0,
+        },
+      });
       model.dispatch({
         type: 'load',
         payload: {
@@ -204,22 +209,31 @@ export default class StockProductSku extends PureComponent {
     });
   }
 
-
+  /**
+   * 打开Modal
+   * @param record
+   */
   openModal = (record) => {
-    const {model} = this.props;
-    model.dispatch({
-        type: 'getWar',
-        payload: {
-          isCancel: true,
-        },
+    const {model: {dispatch}} = this.props;
+    this.setState({
+      visible: true,
+      skuCodeDisabled: true,
+      record,
+    });
+    dispatch({
+      type: 'getWar',
+      payload: {
+        isCancel: true,
       },
-    ).then(() => {
-      this.setState({
-        visible: true,
-        record,
-      });
     });
   }
+
+  changeSkuCode = () => {
+    this.setState({
+      skuCodeDisabled: false,
+    })
+  }
+
   closeModal = () => {
     this.setState({
       visible: false,
@@ -237,19 +251,25 @@ export default class StockProductSku extends PureComponent {
     );
   }
 
-  changeHj = () => {
+  receive = () => {
     const {model, form} = this.props;
     form.validateFields((err, fieldsValue) => {
       if (err) return;
+      rs.util.loadingService.startSubmit();
       model.dispatch({
-        type: 'changeHj',
+        type: 'receive',
         payload: {
-          skuId: this.state.record.sku_id,
+          id: this.state.record.id,
           warId: fieldsValue.warId,
           hjNo: fieldsValue.hjNo,
+          skuCode:fieldsValue.skuCode,
         },
-      }).then(() => {
+      }).then((res) => {
         this.closeModal();
+        rs.util.loadingService.done();
+        if (res) {
+          this.handleSearch();
+        }
       });
     });
   }
@@ -275,7 +295,6 @@ export default class StockProductSku extends PureComponent {
       },
     });
   }
-
 
   renderForm() {
     const {myShop} = this.props;
@@ -326,11 +345,39 @@ export default class StockProductSku extends PureComponent {
     );
   }
 
+  renderTable() {
+    const {
+      orderReturn: {data: {list, total}, pageIndex, pageSize}, loading, model, pagination,
+    } = this.props;
+    const {columns} = this.state;
+    return (
+      <Table
+        rowkey="id"
+        columns={columns}
+        size="middle"
+        loading={loading.effects[`${model.name}/load`]}
+        dataSource={list}
+        pagination={pagination({pageIndex, pageSize, total}, this.handleSearch)}
+      />
+    )
+  }
+
   renderModalForm() {
     const {getFieldDecorator} = this.props.form;
-    const {productSku: {warList, hjList}} = this.props;
+    const {orderReturn: {warList, hjList}} = this.props;
     return (
       <Form layout="horizontal">
+        <FormItem label="商品SKU" labelCol={{span: 4}} wrapperCol={{span: 14}}>
+          {getFieldDecorator('skuCode', {
+            initialValue: this.state.record.skuCode,
+            rules: [{
+              required: true, message: '请填写SKU',
+            }],
+          })(
+            <Input disabled={this.state.skuCodeDisabled} style={{width: 200}}/>
+          )}
+          <a style={{marginLeft: 10}} onClick={() => this.changeSkuCode()}>更改</a>
+        </FormItem>
         <FormItem label="选择仓库" labelCol={{span: 4}} wrapperCol={{span: 14}}>
           {getFieldDecorator('warId', {
             rules: [{
@@ -367,10 +414,7 @@ export default class StockProductSku extends PureComponent {
   }
 
   render() {
-    const {
-      orderReturn: {data: {list, total}, pageIndex, pageSize}, loading, model, pagination,
-    } = this.props;
-    const {columns} = this.state;
+    const {loading, model} = this.props;
     return (
       <PageHeaderLayout >
         <Card bordered={false}>
@@ -378,21 +422,14 @@ export default class StockProductSku extends PureComponent {
             {this.renderForm()}
           </div>
           <Alert type="info" showIcon message="剩余收货时间大于15天时不可作废，已处理申请默认不显示" style={{marginBottom: 16}}/>
-          <Table
-            columns={columns}
-            size="middle"
-            loading={loading.effects[`${model.name}/load`]}
-            dataSource={list}
-            pagination={pagination({pageIndex, pageSize, total}, this.handleSearch)}
-          />
+          {this.renderTable()}
         </Card>
         {this.state.visible ? <Modal
-          title="移至货架"
+          title="确认收货"
           width={500}
           visible={this.state.visible}
-          confirmLoading={loading.effects[`${model.name}/changeHj`]}
           onCancel={() => this.closeModal()}
-          onOk={() => this.changeHj()}
+          onOk={() => this.receive()}
         >
           {this.renderModalForm()}
         </Modal> : null}

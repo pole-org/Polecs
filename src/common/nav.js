@@ -124,7 +124,7 @@ const data = [{
           component: require('../routes/Stock/Sku/'),
         },
         {
-          name: '订单退货管理',
+          name: '退货申请',
           path: 'orderReturn',
           code: 'stock_orderReturn',
           show: true,
