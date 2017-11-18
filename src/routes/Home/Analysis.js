@@ -1,6 +1,6 @@
 import React, {PureComponent} from 'react';
 import {connect} from 'dva';
-import {Card, Form, Button, Table, DatePicker, Progress} from 'antd';
+import {Card, Form, Button, Table, DatePicker, Progress, Badge} from 'antd';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import rs from '../../rs/';
 
@@ -24,6 +24,22 @@ export default class TableList extends PureComponent {
         width: 250,
       },
       {
+        title: '店铺状态',
+        dataIndex: 'status',
+        key: 'status',
+        width: 150,
+        filters: [
+          {text: '运营中', value: 1},
+          {text: '已关闭', value: 0},
+        ],
+        onFilter: (value, record) => {
+          return record.status === parseInt(value);
+        },
+        render: (text) => {
+          return (<Badge text={this.getStatus(text).text} status={this.getStatus(text).status}/>);
+        },
+      },
+      {
         title: '预计交易额',
         dataIndex: 'planMoney',
         key: 'planMoney',
@@ -31,7 +47,7 @@ export default class TableList extends PureComponent {
         sortOrder: true,
         render: (text) => {
           text = text === null ? 0 : text;
-          return (<span style={{float: 'right'}}>{'$' + text}</span>);
+          return (<span>{'$ ' + text}</span>);
         },
       },
       {
@@ -41,7 +57,30 @@ export default class TableList extends PureComponent {
         width: 150,
         sortOrder: true,
         render: (text) => {
-          return (<span style={{float: 'right'}}>{'$' + text}</span>);
+          text = text === null ? 0 : text;
+          return (<span>{'$ ' + text}</span>);
+        },
+      },
+      {
+        title: '已取消交易额',
+        dataIndex: 'cancelMoney',
+        key: 'cancelMoney',
+        width: 150,
+        sortOrder: true,
+        render: (text) => {
+          text = text === null ? 0 : text;
+          return (<span>{'$ ' + text}</span>);
+        },
+      },
+      {
+        title: '已退款交易额',
+        dataIndex: 'refundMoney',
+        key: 'refundMoney',
+        width: 150,
+        sortOrder: true,
+        render: (text) => {
+          text = text === null ? 0 : text;
+          return (<span>{'$ ' + text}</span>);
         },
       },
       {
@@ -49,7 +88,7 @@ export default class TableList extends PureComponent {
         key: 'okPercent',
         width: 150,
         render: (text, record) => {
-          return (<span style={{float: 'right'}}>{this.getPercentRange(record.actualMoney, record.planMoney)}</span>);
+          return (<span >{this.getPercentRange(record.actualMoney, record.planMoney)}</span>);
         },
       },
       {
@@ -58,11 +97,13 @@ export default class TableList extends PureComponent {
         render: (text, record) => {
           return (
             <div style={{width: 170}}>
-              <Progress
-                percent={this.getProgress(record.actualMoney, record.planMoney).value}
-                strokeWidth={5}
-                status={this.getProgress(record.actualMoney, record.planMoney).status}
-              />
+              {this.getProgress(record.actualMoney, record.planMoney) !== null ?
+                <Progress
+                  percent={this.getProgress(record.actualMoney, record.planMoney).value}
+                  strokeWidth={5}
+                  status={this.getProgress(record.actualMoney, record.planMoney).status}
+                /> : null
+              }
             </div>
           );
         },
@@ -72,13 +113,16 @@ export default class TableList extends PureComponent {
 
   getPercentRange = (one, two) => {
     if (two === 0 || two === null) {
-      return '';
+      return null;
     } else {
       return eval((one / two) * 100).toFixed(2) + '%';
     }
   }
 
   getProgress = (one, two) => {
+    if (two === 0 || two === null) {
+      return null;
+    }
     const prop = {};
     const result = eval((one / two) * 100).toFixed(0) > 100 ? 100
       : parseInt(eval((one / two) * 100).toFixed(2));
@@ -89,6 +133,21 @@ export default class TableList extends PureComponent {
     }
     prop.value = result
     return prop;
+  }
+
+  getStatus = (status) => {
+    const props = {}
+    switch (status) {
+      case 1:
+        props.text = "运营中";
+        props.status = "processing";
+        break;
+      case 0:
+        props.text = "已关闭";
+        props.status = "error";
+        break;
+    }
+    return props;
   }
 
   handleSearch = (e) => {
@@ -109,17 +168,26 @@ export default class TableList extends PureComponent {
     let arr = list.concat([])
     const title = [
       {"value": "店铺名称", "type": "ROW_HEADER_HEADER", "datatype": "string"},
+      {"value": "店铺状态", "type": "ROW_HEADER_HEADER", "datatype": "string"},
       {"value": "目标额", "type": "ROW_HEADER_HEADER", "datatype": "number"},
       {"value": "实际完成", "type": "ROW_HEADER_HEADER", "datatype": "number"},
+      {"value": "已取消", "type": "ROW_HEADER_HEADER", "datatype": "number"},
+      {"value": "已退款", "type": "ROW_HEADER_HEADER", "datatype": "number"},
       {"value": "完成率", "type": "ROW_HEADER_HEADER", "datatype": "string"},
     ]
     let dataArr = []
     arr.map(x => {
       const obj = [
         {"value": x.shopName, "type": "ROW_HEADER"},
+        {"value": this.getStatus(x.status).text, "type": "ROW_HEADER"},
         {"value": x.planMoney === null ? 0 : x.planMoney, "type": "ROW_HEADER"},
         {"value": x.actualMoney === null ? 0 : x.actualMoney, "type": "ROW_HEADER"},
-        {"value": this.getPercentRange(x.actualMoney, x.planMoney), "type": "ROW_HEADER"},
+        {"value": x.cancelMoney === null ? 0 : x.cancelMoney, "type": "ROW_HEADER"},
+        {"value": x.refundMoney === null ? 0 : x.refundMoney, "type": "ROW_HEADER"},
+        {
+          "value": this.getPercentRange(x.actualMoney, x.planMoney) === null ? "" : this.getPercentRange(x.actualMoney, x.planMoney),
+          "type": "ROW_HEADER",
+        },
       ]
       dataArr.push(obj);
     });
@@ -168,7 +236,7 @@ export default class TableList extends PureComponent {
             {this.renderForm()}
           </div>
           <Table
-            bordered
+            size="middle"
             columns={columns}
             loading={loading.effects[`${model.name}/fetchList`]}
             dataSource={data.list}

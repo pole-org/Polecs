@@ -31,7 +31,7 @@ export default modelExtend(BaseModel, {
         shopName: '',
         skuCode: '',
       },
-      boxInfo: {},
+      planInfo: {},
       processList: [],
     },
     query: {
@@ -66,7 +66,7 @@ export default modelExtend(BaseModel, {
               serialNo: payload.applySerial,
               applyInfo: data.applyInfo,
               orderInfo: data.orderInfo,
-              boxInfo: data.boxInfo,
+              planInfo: data.planInfo,
               processList: data.processList,
               skuList: data.skuList,
             },

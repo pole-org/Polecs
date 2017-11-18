@@ -315,14 +315,13 @@ export default class OutStockApplyDetail extends Component {
   }
 
   renderBoxInfo = () => {
-    const {outStock: {detail: {boxInfo}}} = this.props;
+    const {outStock: {detail: {planInfo}}} = this.props;
     return (
       <DescriptionList style={{marginBottom: 24}}>
-        <Description term="箱子编号">{boxInfo.boxId}</Description>
-        <Description term="箱子名称">{boxInfo.boxNo}</Description>
-        <Description term="计划编号">{boxInfo.planId}</Description>
-        <Description term="计划名称">{boxInfo.boxNo}</Description>
-        <Description term="发货备注">{boxInfo.deliveryContent}</Description>
+        <Description term="计划编号">{planInfo.plan_id}</Description>
+        <Description term="计划名称">{planInfo.plan_number}</Description>
+        <Description term="商品数量">{planInfo.pro_num}</Description>
+        <Description term="SKU数量">{planInfo.sku_num}</Description>
       </DescriptionList>
     );
   }
@@ -367,10 +366,9 @@ export default class OutStockApplyDetail extends Component {
         <Description term="申请人">{applyInfo.apply_user_name}</Description>
         <Description term="来源类型">{this.getType(applyInfo.apply_type)}</Description>
         <Description term="申请时间">{rs.util.date.toString(applyInfo.apply_date)}</Description>
-        <Description term={applyInfo.apply_type === 0 ? '来源箱子' : '来源订单'}>
+        <Description term={applyInfo.apply_type === 0 ? '来源计划' : '来源订单'}>
           {applyInfo.apply_type === 0 ?
-            <a
-              href={`${rs.config.getConfig('api')}/logistics/bulk_delivery#/logistics/bulk_delivery/box?planId=${applyInfo.from_no}`}>{applyInfo.from_item_no}</a>
+            <a>{applyInfo.from_no}</a>
             : <a >{applyInfo.from_item_no}</a>}
         </Description>
         <Description term="备注">

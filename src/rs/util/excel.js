@@ -9,12 +9,12 @@ excel.export = (JSONData, FileName, ShowLabel) => {
   }
   table += row + "</tr>";
   for (let i = 0; i < arrData.length; i += 1) {
-    let row1 = "<tr>";
+    let row = "<tr>";
     for (let index in arrData[i]) {
       let value = arrData[i][index].value === "." ? "" : arrData[i][index].value;
-      row1 += '<td>' + value + '</td>';
+      row += '<td>' + value + '</td>';
     }
-    table += row1 + "</tr>";
+    table += row + "</tr>";
   }
   table += "</table>";
   let excelFile = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:x='urn:schemas-microsoft-com:office:excel' xmlns='http://www.w3.org/TR/REC-html40'>";
@@ -40,7 +40,7 @@ excel.export = (JSONData, FileName, ShowLabel) => {
   excelFile += "<![endif]-->";
   excelFile += "</head>";
   excelFile += "<body>";
-  excelFile += excel;
+  excelFile += table;
   excelFile += "</body>";
   excelFile += "</html>";
   let uri = 'data:application/vnd.ms-excel;charset=utf-8,' + encodeURIComponent(excelFile);
