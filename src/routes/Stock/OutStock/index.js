@@ -24,21 +24,47 @@ export default class StockOutStock extends PureComponent {
       {label: '大货发货', value: 0},
       {label: '订单发货', value: 1},
     ],
+    statusOptions: [
+      {label: '新的申请', value: 0},
+      {label: '正在捡货', value: 3},
+      {label: '捡货完成', value: 4},
+      {label: '处理完成', value: 98},
+    ],
     columns: [
       {
         title: '流水号',
         dataIndex: 'apply_serial',
         key: 'apply_serial',
-        width: 280,
         // render: (text) => {
         //   return (<strong>{text}</strong>);
         // },
       },
       {
+        title: '来源信息',
+        dataIndex: 'from_no',
+        key: 'from_no',
+        render: (text, record) => {
+          return (
+            <div>
+              {record.apply_type === 0 ?
+                <span>计划ID：{record.from_no}</span> :
+                <div>
+                  <p>
+                    <span>交易编号：{record.from_no}</span>
+                  </p>
+                  <p>
+                    <span>订单编号：{record.from_item_no}</span>
+                  </p>
+                </div>
+              }
+            </div>
+          );
+        },
+      },
+      {
         title: '类型',
         dataIndex: 'apply_type',
         key: 'apply_type',
-        width: 150,
         render: (text) => {
           let res = ''
           switch (text) {
@@ -55,16 +81,27 @@ export default class StockOutStock extends PureComponent {
         },
       },
       {
-        title: '申请人',
+        title: '申请人员',
         dataIndex: 'apply_user_name',
         key: 'apply_user_name',
-        width: 100,
       },
       {
         title: '申请时间',
         dataIndex: 'apply_date',
         key: 'apply_date',
-        width: 180,
+        render: (text) => {
+          return (<div>{rs.util.date.toString(text)}</div>);
+        },
+      },
+      {
+        title: '操作人员',
+        dataIndex: 'op_user_name',
+        key: 'op_user_name',
+      },
+      {
+        title: '操作时间',
+        dataIndex: 'op_date',
+        key: 'op_date',
         render: (text) => {
           return (<div>{rs.util.date.toString(text)}</div>);
         },
@@ -73,12 +110,11 @@ export default class StockOutStock extends PureComponent {
         title: '状态',
         dataIndex: 'apply_status',
         key: 'apply_status',
-        width: 150,
         render: (text) => {
           const res = {}
           switch (text) {
             case 0:
-              res.text = '申请中';
+              res.text = '新的申请';
               res.status = 'processing';
               break;
             case 3:
@@ -102,16 +138,15 @@ export default class StockOutStock extends PureComponent {
           );
         },
       },
-      {
-        title: '备注',
-        dataIndex: 'remark',
-        key: 'remark',
-      },
+      // {
+      //   title: '备注',
+      //   dataIndex: 'remark',
+      //   key: 'remark',
+      // },
       {
         title: '操作',
         dataIndex: 'op',
         key: 'op',
-        width: 180,
         render: (text, record) => {
           return (<a onClick={() => this.showDetail(record.apply_serial)}>查看详情</a>);
         },
@@ -137,20 +172,28 @@ export default class StockOutStock extends PureComponent {
 
   handleSearch = () => {
     const {outStock: {query, pageIndex, pageSize}, form, model} = this.props;
-    form.validateFields((err, fieldsValue) => {
-      if (err) return;
-      const values = {
-        startDate: fieldsValue.startDate === undefined || fieldsValue.startDate === null ? null
-          : fieldsValue.startDate.format('YYYY-MM-DD HH:MM:SS'),
-        applyTypeList: fieldsValue.applyTypeList,
-      };
-      model.call('loadList', {
-        ...query,
-        pageIndex,
-        pageSize,
-        ...values,
+    model.setState({
+      data: {
+        list: [],
+        total: 0,
+      },
+    }).then(() => {
+      form.validateFields((err, fieldsValue) => {
+        if (err) return;
+        const values = {
+          startDate: fieldsValue.startDate === undefined || fieldsValue.startDate === null ? null
+            : fieldsValue.startDate.format('YYYY-MM-DD'),
+          applyTypeList: fieldsValue.applyTypeList,
+          statusList: fieldsValue.statusList,
+        };
+        model.call('loadList', {
+          ...query,
+          pageIndex,
+          pageSize,
+          ...values,
+        });
       });
-    });
+    })
   }
 
   changeType = (status) => {
@@ -177,10 +220,13 @@ export default class StockOutStock extends PureComponent {
           )}
         </FormItem>
         <FormItem label="类型">
-          {getFieldDecorator('applyTypeList', {
-            initialValue: [0, 1],
-          })(
+          {getFieldDecorator('applyTypeList')(
             <CheckboxGroup options={this.state.typeOptions}/>
+          )}
+        </FormItem>
+        <FormItem label="状态">
+          {getFieldDecorator('statusList')(
+            <CheckboxGroup options={this.state.statusOptions}/>
           )}
         </FormItem>
         <FormItem>
@@ -199,7 +245,6 @@ export default class StockOutStock extends PureComponent {
   render() {
     const {
       outStock: {
-        query: {status},
         data: {list, total}, pageIndex,
         pageSize,
       }, loading, pagination, model,
@@ -210,14 +255,6 @@ export default class StockOutStock extends PureComponent {
         <Card bordered={false}>
           <div className="tool-bar">
             {this.renderForm()}
-          </div>
-          <div style={{marginBottom: 10}}>
-            <RadioGroup value={status} onChange={e => this.changeType(e.target.value)}>
-              <RadioButton value={0}>新的申请</RadioButton>
-              <RadioButton value={3}>正在捡货</RadioButton>
-              <RadioButton value={4}>拣货完成</RadioButton>
-              <RadioButton value={98}>处理完成</RadioButton>
-            </RadioGroup>
           </div>
           <Table
             size="middle"

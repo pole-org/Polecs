@@ -14,6 +14,15 @@ export async function loadBoxSkuInfo(params) {
   return http.post('/LogisticsBulkDelivery/LoadBoxSkuInfo', params);
 }
 
+/**
+ * 装箱
+ * @param params
+ * @returns {Promise.<*>}
+ */
+export async function addBoxSku(params) {
+  return http.post('/LogisticsBulkDelivery/AddBoxSku', params);
+}
+
 export async function returnBoxSku(params) {
   return http.post('/LogisticsBulkDelivery/ReturnBoxSku', params);
 }

@@ -44,7 +44,7 @@ export default class TableList extends PureComponent {
         dataIndex: 'planMoney',
         key: 'planMoney',
         width: 150,
-        sortOrder: true,
+        sorter: (a, b) => a.planMoney - b.planMoney,
         render: (text) => {
           text = text === null ? 0 : text;
           return (<span>{'$ ' + text}</span>);
@@ -55,7 +55,7 @@ export default class TableList extends PureComponent {
         dataIndex: 'actualMoney',
         key: 'actualMoney',
         width: 150,
-        sortOrder: true,
+        sorter: (a, b) => a.actualMoney - b.actualMoney,
         render: (text) => {
           text = text === null ? 0 : text;
           return (<span>{'$ ' + text}</span>);
@@ -66,7 +66,7 @@ export default class TableList extends PureComponent {
         dataIndex: 'cancelMoney',
         key: 'cancelMoney',
         width: 150,
-        sortOrder: true,
+        sorter: (a, b) => a.cancelMoney - b.cancelMoney,
         render: (text) => {
           text = text === null ? 0 : text;
           return (<span>{'$ ' + text}</span>);
@@ -77,7 +77,7 @@ export default class TableList extends PureComponent {
         dataIndex: 'refundMoney',
         key: 'refundMoney',
         width: 150,
-        sortOrder: true,
+        sorter: (a, b) => a.refundMoney - b.refundMoney,
         render: (text) => {
           text = text === null ? 0 : text;
           return (<span>{'$ ' + text}</span>);
@@ -236,6 +236,7 @@ export default class TableList extends PureComponent {
             {this.renderForm()}
           </div>
           <Table
+            rowKey="shopId"
             size="middle"
             columns={columns}
             loading={loading.effects[`${model.name}/fetchList`]}

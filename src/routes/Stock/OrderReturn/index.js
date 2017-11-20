@@ -183,28 +183,29 @@ export default class StockProductSku extends PureComponent {
    */
   handleSearch = () => {
     const {orderReturn: {pageIndex, pageSize}, model, form, myShop} = this.props;
-    form.validateFields((err, fieldsValue) => {
-      if (err) return;
-      const proId = fieldsValue.proId === undefined ? null : fieldsValue.proId;
-      const shopId = rs.util.string.isNullOrEmpty(fieldsValue.shopName) ?
-        null : myShop.filter(x => x.shopName === fieldsValue.shopName)[0].shopId;
-      const isOk = fieldsValue.isOk === undefined ? false : fieldsValue.isOk;
-      model.setState({
-        data: {
-          list: [],
-          total: 0,
-        },
-      });
-      model.dispatch({
-        type: 'load',
-        payload: {
-          isOk,
-          orderNo: fieldsValue.orderNo,
-          shopId,
-          proId,
-          pageIndex,
-          pageSize,
-        },
+    model.setState({
+      data: {
+        list: [],
+        total: 0,
+      },
+    }).then(() => {
+      form.validateFields((err, fieldsValue) => {
+        if (err) return;
+        const proId = fieldsValue.proId === undefined ? null : fieldsValue.proId;
+        const shopId = rs.util.string.isNullOrEmpty(fieldsValue.shopName) ?
+          null : myShop.filter(x => x.shopName === fieldsValue.shopName)[0].shopId;
+        const isOk = fieldsValue.isOk === undefined ? false : fieldsValue.isOk;
+        model.dispatch({
+          type: 'load',
+          payload: {
+            isOk,
+            orderNo: fieldsValue.orderNo,
+            shopId,
+            proId,
+            pageIndex,
+            pageSize,
+          },
+        });
       });
     });
   }
@@ -262,7 +263,7 @@ export default class StockProductSku extends PureComponent {
           id: this.state.record.id,
           warId: fieldsValue.warId,
           hjNo: fieldsValue.hjNo,
-          skuCode:fieldsValue.skuCode,
+          skuCode: fieldsValue.skuCode,
         },
       }).then((res) => {
         this.closeModal();

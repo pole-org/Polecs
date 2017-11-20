@@ -9,7 +9,7 @@ import {
   loadBoxSkuInfo,
   returnBoxSku,
   loadDeliverySkuInfo,
-  outStock,
+  addBoxSku,
 } from '../services/logistic/logistic.bulkDelivery.service';
 import rs from '../rs/';
 
@@ -35,7 +35,6 @@ export default modelExtend(BaseModel, {
     pageIndex: 1,
     box: {},
     boxSkuList: [],
-    boxApplySkuList: [],
     modalList: [],
     updateList: [],
     updateListKeys: [],
@@ -84,7 +83,6 @@ export default modelExtend(BaseModel, {
           payload: {
             box: data.box,
             boxSkuList: data.boxSkuList,
-            boxApplySkuList: data.boxApplySkuList,
           },
         });
       }
@@ -110,8 +108,8 @@ export default modelExtend(BaseModel, {
         message.success(data.msg);
       }
     },
-    *outStock({payload}, {call, put}) {
-      const data = yield call(outStock, payload);
+    *addBoxSku({payload}, {call, put}) {
+      const data = yield call(addBoxSku, payload);
       if (data.success) {
         rs.util.loadingService.done();
         yield put({
@@ -135,7 +133,7 @@ export default modelExtend(BaseModel, {
       if (data) {
         const arr = [];
         data.skuList.map(x => {
-          if ((x.allCount - x.applyCount - x.boxCount) !== 0) {
+          if ((x.allCount - x.boxCount) !== 0) {
             arr.push(x);
           }
         });

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {PureComponent} from 'react';
 import {Card, Table, Button, Badge, Modal, Form, Row, Col, Spin, InputNumber, message, Alert} from 'antd';
 import {connect} from 'dva';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
@@ -21,7 +21,8 @@ const {Description} = DescriptionList;
   })
 )
 @Form.create()
-export default class BoxSku extends React.Component {
+@rs.component.injectModel('logistic_bulkDelivery')
+export default class BoxSku extends PureComponent {
   state = {
     applyColumns: [
       {
@@ -102,6 +103,17 @@ export default class BoxSku extends React.Component {
     visible: false,
   }
 
+  componentDidMount() {
+    const {model} = this.props;
+    model.dispatch({
+      type: 'loadBoxSkuInfo',
+      payload: {
+        planId: query('planId'),
+        boxId: query('boxId'),
+      },
+    })
+  }
+
   getStatus = (status) => {
     let text = '';
     switch (status) {
@@ -145,16 +157,16 @@ export default class BoxSku extends React.Component {
   }
 
   openModal = () => {
-    const {dispatch} = this.props;
+    const {model: {dispatch}} = this.props;
+    this.setState({
+      visible: true,
+    });
     dispatch({
-      type: 'logistic_bulkDelivery/loadDeliverySkuInfo',
+      type: 'loadDeliverySkuInfo',
       payload: {
         planId: query('planId'),
       },
     }).then(() => {
-      this.setState({
-        visible: true,
-      });
     });
   }
   closeModal = () => {
@@ -164,7 +176,7 @@ export default class BoxSku extends React.Component {
   }
 
   returnBoxSku = () => {
-    const {dispatch, bulkDelivery: {updateList}} = this.props;
+    const {model:{dispatch}, bulkDelivery: {updateList}} = this.props;
     Modal.confirm({
       title: '撤回库存',
       content: '确定要撤回库存吗',
@@ -173,7 +185,7 @@ export default class BoxSku extends React.Component {
       onOk: () => {
         rs.util.loadingService.startSubmit();
         dispatch({
-          type: 'logistic_bulkDelivery/returnBoxSku',
+          type: 'returnBoxSku',
           payload: {
             boxId: query('boxId'),
             skuModelList: updateList,
@@ -197,8 +209,8 @@ export default class BoxSku extends React.Component {
     });
   }
 
-  outStock = () => {
-    const {dispatch, bulkDelivery: {modalList}} = this.props;
+  addBoxSku = () => {
+    const {model: {dispatch}, bulkDelivery: {modalList}} = this.props;
     Modal.confirm({
       title: '申请库存',
       content: '确定要申请库存吗',
@@ -210,23 +222,22 @@ export default class BoxSku extends React.Component {
         modalList.map(data => {
           if (data.canApplyCount > 0) {
             obj = {
-              pro_id: data.pro_id,
-              sku_code: data.sku_code,
+              proId: data.pro_id,
+              skuCode: data.sku_code,
               count: data.canApplyCount,
             }
             arr.push(obj);
           }
         });
         if (arr.length === 0) {
-          message.warning("请申请至少一个sku");
+          message.warning("请添加至少一个sku");
         } else {
           rs.util.loadingService.startSubmit();
           dispatch({
-            type: 'logistic_bulkDelivery/outStock',
+            type: 'addBoxSku',
             payload: {
-              fromNo: query('planId'),
-              fromItemNo: query('boxId'),
-              queryModel: arr,
+              boxId: query('boxId'),
+              skuModel: arr,
             },
           });
         }
@@ -238,24 +249,25 @@ export default class BoxSku extends React.Component {
     return (
       <Form layout="inline">
         <FormItem>
-          <Button onClick={() => this.addAll()}>添加全部</Button>
+          <Button type="primary" onClick={() => this.addBoxSku()}>装箱</Button>
         </FormItem>
         <FormItem>
-          <Button type="primary" onClick={() => this.outStock()}>申请出库</Button>
+          <Button onClick={() => this.addAll()}>添加全部</Button>
         </FormItem>
       </Form>
     );
   }
 
   renderModalTable() {
-    const {bulkDelivery: {modalList}, loading} = this.props;
+    const {bulkDelivery: {modalList}, loading, model} = this.props;
     return (
       <Table
         dataSource={modalList}
         pagination={false}
+        size="middle"
         style={{marginBottom: 24}}
         bordered
-        loading={loading.effects['logistic_bulkDelivery/loadDeliverySkuInfo']}
+        loading={loading.effects[`${model.name}/loadDeliverySkuInfo`]}
       >
         <Column
           title="图片"
@@ -267,39 +279,28 @@ export default class BoxSku extends React.Component {
         />
         <Column title="商品编号" dataIndex="pro_id" key="pro_id"/>
         <Column title="商品SKU" dataIndex="sku_code" key="sku_code"/>
-        <ColumnGroup title="本地库存">
-          <Column
-            title="总计"
-            dataIndex="stockAllCount"
-            key="stockAllCount"
-            render={(text, record) => {
-              return record.stockBulkCount + record.stockPurchaseCount;
-            }}
-          />
-          <Column title="大货" dataIndex="stockBulkCount" key="stockBulkCount"/>
-          <Column title="散单" dataIndex="stockPurchaseCount" key="stockPurchaseCount"/>
-        </ColumnGroup>
+        <Column title="ASIN" dataIndex="ASIN" key="ASIN"/>
+        <Column title="FNSKU" dataIndex="FNSKU" key="FNSKU"/>
         <ColumnGroup title="商品数量">
-          <Column title="总计划" dataIndex="allCount" key="allCount"/>
+          <Column title="总计" dataIndex="allCount" key="allCount"/>
           <Column title="已装箱" dataIndex="boxCount" key="boxCount"/>
-          <Column title="申请中" dataIndex="applyCount" key="applyCount"/>
           <Column
-            title="可申请"
+            title="可装箱"
             dataIndex="canApplyCount"
             key="canApplyCount"
             render={(text, record) => {
-              return record.allCount - record.applyCount - record.boxCount;
+              return record.allCount - record.boxCount;
             }}
           />
         </ColumnGroup>
         <Column
-          title="填写申请数量"
+          title="填写装箱数量"
           key="action"
           render={(text, record, index) => (
             <div>
               <InputNumber
                 min={0}
-                max={record.allCount - record.applyCount - record.boxCount}
+                max={record.allCount - record.boxCount}
                 value={record.canApplyCount}
                 onChange={value => this.setValue(value, index)}
               />
@@ -308,7 +309,7 @@ export default class BoxSku extends React.Component {
                 size="small"
                 style={{marginLeft: 10}}
                 onClick={() => this.setValue(
-                  (record.allCount - record.applyCount - record.boxCount), index)}
+                  (record.allCount - record.boxCount), index)}
               >
                 全部
               </Button>
@@ -322,18 +323,15 @@ export default class BoxSku extends React.Component {
 
   render() {
     const {
-      loading, bulkDelivery: {box, boxSkuList, boxApplySkuList, updateList, updateListKeys},
-      dispatch,
+      loading, bulkDelivery: {box, boxSkuList, updateList, updateListKeys},
+      model,
     } = this.props;
     const rowSelection = {
       selectedRowKeys: updateListKeys,
       onChange: (selectedRowKeys, selectedRows) => {
-        dispatch({
-          type: 'logistic_bulkDelivery/setState',
-          payload: {
-            updateListKeys: selectedRowKeys,
-            updateList: selectedRows,
-          },
+        model.setState({
+          updateListKeys: selectedRowKeys,
+          updateList: selectedRows,
         });
       },
     };
@@ -378,29 +376,24 @@ export default class BoxSku extends React.Component {
       >
         <Spin
           tip="正在从服务器加载数据...."
-          spinning={loading.effects['logistic_bulkDelivery/loadBoxSkuInfo']}
+          spinning={loading.effects[`${model.name}/loadBoxSkuInfo`]}
         >
-          {box.box_status === 'packing' ?
-            <Card
-              bordered={false}
-              title="申请中SKU列表"
-              style={{marginBottom: 24}}
-              extra={<Button type="primary" size="small" onClick={() => this.openModal()}>申请库存</Button>}
-            >
-              <Table
-                columns={this.state.applyColumns}
-                dataSource={boxApplySkuList}
-                pagination={false}
-              />
-            </Card> : null
-          }
-
           <Card
             bordered={false}
             title="已添加SKU列表"
-            extra={updateList.length > 0 ?
-              <Button type="danger" size="small" onClick={() => this.returnBoxSku()}>撤回库存</Button> : null}
           >
+            {box.box_status === 'packing' ?
+              <div className="tool-bar">
+                <Form layout="inline">
+                  <FormItem>
+                    <Button type="primary" onClick={() => this.openModal()}>装箱</Button>
+                  </FormItem>
+                  <FormItem>
+                    {updateList.length > 0 ?
+                      <Button type="danger" onClick={() => this.returnBoxSku()}>撤回库存</Button> : null}
+                  </FormItem>
+                </Form></div> : null
+            }
             <Table
               columns={this.state.columns}
               dataSource={boxSkuList}
@@ -410,25 +403,27 @@ export default class BoxSku extends React.Component {
             />
           </Card>
         </Spin>
-        {this.state.visible ?
-          <Modal
-            title="申请库存"
-            footer={null}
-            visible={this.state.visible}
-            width={1100}
-            onCancel={() => this.closeModal()}
-          >
-            <div className="tool-bar">
-              {this.renderForm()}
-            </div>
-            <Alert
-              message="注意"
-              description="如果申请数量小于本地仓库库存总和，系统只会匹配现有库存数量，而不是您申请的数量"
-              type="warning"
-              showIcon
-            />
-            {this.renderModalTable()}
-          </Modal> : null}
+        {
+          this.state.visible ?
+            <Modal
+              title="装箱"
+              footer={null}
+              visible={this.state.visible}
+              width={1100}
+              onCancel={() => this.closeModal()}
+            >
+              <div className="tool-bar">
+                {this.renderForm()}
+              </div>
+              {/*<Alert*/}
+              {/*message="注意"*/}
+              {/*description="如果申请数量小于本地仓库库存总和，系统只会匹配现有库存数量，而不是您申请的数量"*/}
+              {/*type="warning"*/}
+              {/*showIcon*/}
+              {/*/>*/}
+              {this.renderModalTable()}
+            </Modal> : null
+        }
       </PageHeaderLayout>
     );
   }
