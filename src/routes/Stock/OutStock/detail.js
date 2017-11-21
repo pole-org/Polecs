@@ -118,7 +118,7 @@ export default class OutStockApplyDetail extends Component {
               break;
             case 1:
               props.text = '捡货完成';
-              props.status = 'exception';
+              props.status = 'error';
               break;
             case 2:
               props.text = '已出库';
