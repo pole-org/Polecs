@@ -3,8 +3,9 @@ import {routerRedux} from 'dva/router';
 import {message} from 'antd';
 import pathToRegExp from 'path-to-regexp';
 import BaseModel from './extra/base.model';
-import {load, cancel, receive} from '../services/stock/orderReturn.service';
+import {load, cancel, receive, addRemark, changeCost} from '../services/stock/orderReturn.service';
 import {getWar, getHj} from '../services/stock/warehouse.service';
+import {loadList} from '../services/finance/orderCancelCost.service';
 
 export default modelExtend(BaseModel, {
   namespace: 'stock_orderReturn',
@@ -21,6 +22,7 @@ export default modelExtend(BaseModel, {
     },
     hjList: [],
     warList: [],
+    orderCancelCost: [],
   },
 
   effects: {
@@ -73,6 +75,31 @@ export default modelExtend(BaseModel, {
         message.success(data.msg);
       }
       return Promise.resolve(data.success);
+    },
+    *addRemark({payload}, {call, put}) {
+      const data = yield call(addRemark, payload);
+      if (data && data.success) {
+        message.success(data.msg);
+      }
+      return Promise.resolve(data.success);
+    },
+    *changeCost({payload}, {call, put}) {
+      const data = yield call(changeCost, payload);
+      if (data.success) {
+        message.success(data.msg);
+      }
+      return Promise.resolve(data.success);
+    },
+    *loadOrderCancelCost({payload}, {call, put}) {
+      const data = yield call(loadList, payload);
+      if (data) {
+        yield put({
+          type: 'setStateOk',
+          payload: {
+            orderCancelCost: data.list,
+          },
+        })
+      }
     },
   },
 

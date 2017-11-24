@@ -1,6 +1,24 @@
 import React, {PureComponent, Component} from 'react';
 import {connect} from 'dva';
-import {Card, Form, Button, Table, Input, Modal, Select, Tag, Badge, Alert, Checkbox, Dropdown, Menu, Icon} from 'antd';
+import {
+  Card,
+  Form,
+  Button,
+  Table,
+  Input,
+  Modal,
+  Select,
+  Tag,
+  Badge,
+  Alert,
+  Checkbox,
+  Dropdown,
+  Menu,
+  Icon,
+  InputNumber,
+  Radio,
+  Popconfirm,
+} from 'antd';
 import CountDown from 'ant-design-pro/lib/CountDown';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
 import ProductInfo from '../../../myComponents/ProductInfo/';
@@ -12,6 +30,7 @@ function fixedZero(val) {
 }
 const FormItem = Form.Item;
 const Option = Select.Option;
+const RadioGroup = Radio.Group;
 
 @connect(state => ({
   orderReturn: state.stock_orderReturn,
@@ -77,70 +96,103 @@ export default class StockProductSku extends PureComponent {
         },
       },
       {
+        title: '是否入库',
+        dataIndex: 'instockStatus',
+        key: 'instockStatus',
+        render: (text) => {
+          let type = '';
+          switch (text) {
+            case 0:
+              type = "否";
+              break;
+            case 1:
+              type = "是";
+              break;
+          }
+          return type;
+        },
+      },
+      {
         title: '退货数量',
         dataIndex: 'proNum',
         key: 'proNum',
       },
       {
-        title: '退货时间',
-        dataIndex: 'createDate',
-        key: 'createDate',
-        render: (text) => {
-          return rs.util.date.toString(text);
-        },
-      },
-      {
-        title: '剩余收货时间',
+        title: '剩余过期时间',
         dataIndex: 'time',
         key: 'time',
         render: (text, record) => {
-          const dateTime = new Date(parseInt(record.createDate.substring(6
-            , record.createDate.length - 2)));
-          return (<
-            CountDown
-            format={time => {
-              const hours = 60 * 60 * 1000;
-              const day = 24 * 60 * 60 * 1000;
-              const minutes = 60 * 1000;
-              const d = fixedZero(Math.floor(time / day));
-              const h = fixedZero(Math.floor(time / hours));
-              const m = fixedZero(Math.floor((time - (h * hours)) / minutes));
-              const s = fixedZero(Math.floor((time - (h * hours) - (m * minutes)) / 1000));
-              return (
-                <span>{d}天 {h % 24}时 {m}分 {s}秒</span>
-              );
-            }}
-            target={dateTime.getTime() + (30 * 60 * 60 * 24 * 1000)}
-          />);
+          if (record.isCancel) {
+            return "已过期";
+          } else {
+            if (record.status === 0) {
+              const dateTime = new Date(parseInt(record.createDate.substring(6
+                , record.createDate.length - 2)));
+              return (<
+                CountDown
+                format={time => {
+                  const hours = 60 * 60 * 1000;
+                  const day = 24 * 60 * 60 * 1000;
+                  const minutes = 60 * 1000;
+                  const d = fixedZero(Math.floor(time / day));
+                  const h = fixedZero(Math.floor(time / hours));
+                  const m = fixedZero(Math.floor((time - (h * hours)) / minutes));
+                  const s = fixedZero(Math.floor((time - (h * hours) - (m * minutes)) / 1000));
+                  return (
+                    <span>{d}天 {h % 24}时 {m}分 {s}秒</span>
+                  );
+                }}
+                target={dateTime.getTime() + (30 * 60 * 60 * 24 * 1000)}
+              />);
+            }
+          }
         },
       },
       {
         title: '状态',
         dataIndex: 'status',
         key: 'status',
-        render: (text) => {
+        render: (text, record) => {
           const props = {};
-          switch (text) {
-            case 0:
-              props.text = "进行中";
-              props.status = 'processing';
-              break;
-            case 1:
-              props.text = "已完成";
-              props.status = 'success';
-              break;
-            case 2:
-              props.text = "已作废";
-              props.status = 'error';
-              break;
+          if (record.isCancel) {
+            props.text = "已过期";
+            props.status = 'warning';
+          } else {
+            switch (text) {
+              case 0:
+                props.text = "进行中";
+                props.status = 'processing';
+                break;
+              case 1:
+                props.text = "已完成";
+                props.status = 'success';
+                break;
+              case 2:
+                props.text = "已作废";
+                props.status = 'error';
+                break;
+            }
           }
           return <Badge text={props.text} status={props.status}/>;
         },
       },
       {
-        title: '退货人员',
+        title: '申请人员',
         dataIndex: 'createUser',
         key: 'createUser',
+      },
+      {
+        title: '申请时间',
+        dataIndex: 'createDate',
+        key: 'createDate',
+        render: (text, record) => {
+          return rs.util.date.toString(text);
+        },
+      },
+      {
+        title: '操作备注',
+        dataIndex: 'opRemark',
+        key: 'opRemark',
       },
       {
         title: '操作',
@@ -148,10 +200,27 @@ export default class StockProductSku extends PureComponent {
         key: 'op',
         width: 150,
         render: (text, record) => {
+          if (record.isCancel || record.status === 2) {
+            return null;
+          }
+          if (record.status === 1 && record.instockStatus === 0) {
+            return <a onClick={() => this.openPurchaseModal(record)}>修正结算成本</a>;
+          }
+          if (record.status === 1 && record.instockStatus === 1) {
+            return null;
+          }
           const menu = (
             <Menu>
               <Menu.Item>
-                <a onClick={() => this.cancel(record.id)}>作废</a>
+                <a onClick={() => this.openRemarkModel(record)}>备注</a>
+              </Menu.Item>
+              <Menu.Item>
+                <Popconfirm
+                  placement="left"
+                  title={'确定要作废吗，操作后将无法撤回。'}
+                  onConfirm={() => this.cancel(record.id)}>
+                  <a>作废</a>
+                </Popconfirm>
               </Menu.Item>
             </Menu>
           );
@@ -165,7 +234,10 @@ export default class StockProductSku extends PureComponent {
           );
           return (
             <div>
-              <a onClick={() => this.openModal(record)}>收货</a>
+              {record.instockStatus === 1 ?
+                <a onClick={() => this.openInstockModal(record)}>收货入库</a> :
+                <a onClick={() => this.openPurchaseModal(record)}>结算成本</a>
+              }
               <span className="ant-divider"/>
               <MoreBtn/>
             </div>
@@ -174,6 +246,8 @@ export default class StockProductSku extends PureComponent {
       },
     ],
     visible: false,
+    purchaseVisible: false,
+    remarkVisible: false,
     record: {},
     skuCodeDisabled: true,
   };
@@ -214,7 +288,7 @@ export default class StockProductSku extends PureComponent {
    * 打开Modal
    * @param record
    */
-  openModal = (record) => {
+  openInstockModal = (record) => {
     const {model: {dispatch}} = this.props;
     this.setState({
       visible: true,
@@ -229,6 +303,28 @@ export default class StockProductSku extends PureComponent {
     });
   }
 
+  openPurchaseModal = (record) => {
+    const {model} = this.props;
+    this.setState({
+      purchaseVisible: true,
+      record,
+    });
+    model.dispatch({
+      type: 'loadOrderCancelCost',
+      payload: {
+        pageIndex: 1,
+        pageSize: 10,
+        orderBid: record.order_bid,
+      },
+    })
+  }
+  openRemarkModel = (record) => {
+    this.setState({
+      remarkVisible: true,
+      record,
+    });
+  }
+
   changeSkuCode = () => {
     this.setState({
       skuCodeDisabled: false,
@@ -238,6 +334,8 @@ export default class StockProductSku extends PureComponent {
   closeModal = () => {
     this.setState({
       visible: false,
+      purchaseVisible: false,
+      remarkVisible: false,
     });
   }
 
@@ -264,6 +362,7 @@ export default class StockProductSku extends PureComponent {
           warId: fieldsValue.warId,
           hjNo: fieldsValue.hjNo,
           skuCode: fieldsValue.skuCode,
+          proNum: fieldsValue.proNum,
         },
       }).then((res) => {
         this.closeModal();
@@ -275,25 +374,57 @@ export default class StockProductSku extends PureComponent {
     });
   }
 
+  addRemark = () => {
+    const {model, form} = this.props;
+    form.validateFields((err, fieldsValue) => {
+      if (err) return;
+      model.dispatch({
+        type: 'addRemark',
+        payload: {
+          id: this.state.record.id,
+          remark: fieldsValue.remark,
+        },
+      }).then((res) => {
+        this.closeModal();
+        if (res) {
+          this.handleSearch();
+        }
+      });
+    });
+  }
+
+  changeCost = () => {
+    const {model, form} = this.props;
+    form.validateFields((err, fieldsValue) => {
+      if (err) return;
+      model.dispatch({
+        type: 'changeCost',
+        payload: {
+          id: this.state.record.id,
+          merchantRefund: fieldsValue.merchantRefund,
+          logisticsCost: fieldsValue.logisticsCost,
+          remark: fieldsValue.remark,
+        },
+      }).then((res) => {
+        this.closeModal();
+        if (res) {
+          this.handleSearch();
+        }
+      });
+    });
+  }
+
   cancel = (id) => {
     const {model} = this.props;
-    Modal.confirm({
-      title: '确认作废',
-      content: '确定要将此申请作废吗,确定后无法撤销',
-      okText: '确认',
-      cancelText: '取消',
-      onOk: () => {
-        model.dispatch({
-          type: 'cancel',
-          payload: {
-            id,
-          },
-        }).then((res) => {
-          if (res) {
-            this.handleSearch()
-          }
-        });
+    model.dispatch({
+      type: 'cancel',
+      payload: {
+        id,
       },
+    }).then((res) => {
+      if (res) {
+        this.handleSearch()
+      }
     });
   }
 
@@ -330,7 +461,9 @@ export default class StockProductSku extends PureComponent {
           )}
         </FormItem>
         <FormItem >
-          {getFieldDecorator('isOk')(
+          {getFieldDecorator('isOk', {
+            initialValue: true,
+          })(
             <Checkbox >已处理申请</Checkbox>
           )}
         </FormItem>
@@ -350,6 +483,9 @@ export default class StockProductSku extends PureComponent {
     const {
       orderReturn: {data: {list, total}, pageIndex, pageSize}, loading, model, pagination,
     } = this.props;
+    // const expandedRowRender = (record) => {
+    //   return 1;
+    // }
     const {columns} = this.state;
     return (
       <Table
@@ -361,6 +497,42 @@ export default class StockProductSku extends PureComponent {
         pagination={pagination({pageIndex, pageSize, total}, this.handleSearch)}
       />
     )
+  }
+
+  renderPurchaseModalForm() {
+    const {model, form: {getFieldDecorator}} = this.props;
+    const {orderReturn: {orderCancelCost}} = this.props;
+    return (
+      <Form layout="horizontal">
+        <FormItem label="供应商退款">
+          {getFieldDecorator('merchantRefund', {
+            initialValue: orderCancelCost.length > 0 ? orderCancelCost[0].merchant_refund : 0,
+            rules: [{
+              required: true, message: '请输入数字类型',
+            }],
+          })(
+            <Input style={{width: 200}} placeholder="请输入供应商退款金额"/>
+          )}
+        </FormItem>
+        <FormItem label="自费物流费用">
+          {getFieldDecorator('logisticsCost', {
+            initialValue: orderCancelCost.length > 0 ? orderCancelCost[0].logistics_cost : 0,
+            rules: [{
+              required: true, message: '请输入数字类型',
+            }],
+          })(
+            <Input style={{width: 200}} placeholder="请输入自费物流费用"/>
+          )}
+        </FormItem>
+        <FormItem label="备注">
+          {getFieldDecorator('remark', {
+            initialValue: this.state.record.opRemark,
+          })(
+            <Input.TextArea autosize={{minRows: 4}}/>
+          )}
+        </FormItem>
+      </Form>
+    );
   }
 
   renderModalForm() {
@@ -410,19 +582,29 @@ export default class StockProductSku extends PureComponent {
             </Select>
           )}
         </FormItem>
+        <FormItem label="退货数量" labelCol={{span: 4}} wrapperCol={{span: 14}}>
+          {getFieldDecorator('proNum', {
+            initialValue: this.state.record.proNum,
+            rules: [{
+              required: true, message: '请填写退货数量',
+            }],
+          })(
+            <InputNumber min={1} max={this.state.record.proNum}/>
+          )}
+        </FormItem>
       </Form>
     );
   }
 
   render() {
     const {loading, model} = this.props;
+    const {getFieldDecorator} = this.props.form;
     return (
       <PageHeaderLayout >
         <Card bordered={false}>
           <div className="tool-bar">
             {this.renderForm()}
           </div>
-          <Alert type="info" showIcon message="剩余收货时间大于15天时不可作废，已处理申请默认不显示" style={{marginBottom: 16}}/>
           {this.renderTable()}
         </Card>
         {this.state.visible ? <Modal
@@ -433,6 +615,32 @@ export default class StockProductSku extends PureComponent {
           onOk={() => this.receive()}
         >
           {this.renderModalForm()}
+        </Modal> : null}
+        {this.state.purchaseVisible ? <Modal
+          title="结算成本"
+          width={500}
+          visible={this.state.purchaseVisible}
+          onCancel={() => this.closeModal()}
+          onOk={() => this.changeCost()}
+        >
+          {this.renderPurchaseModalForm()}
+        </Modal> : null}
+        {this.state.remarkVisible ? <Modal
+          title="备注"
+          width={500}
+          visible={this.state.remarkVisible}
+          onCancel={() => this.closeModal()}
+          onOk={() => this.addRemark()}
+        >
+          <Form layout="horizontal">
+            <FormItem label="操作备注" labelCol={{span: 4}} wrapperCol={{span: 20}}>
+              {getFieldDecorator('remark', {
+                initialValue: this.state.record.opRemark,
+              })(
+                <Input.TextArea autosize={{minRows: 4}}/>
+              )}
+            </FormItem>
+          </Form>
         </Modal> : null}
       </PageHeaderLayout>
     );

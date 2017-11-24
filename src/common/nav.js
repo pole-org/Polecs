@@ -34,7 +34,6 @@ import Register from '../routes/User/Register';
 import RegisterResult from '../routes/User/RegisterResult';
 
 
-import Home_Analysis from '../routes/Home/Analysis';
 import Stock_OutStock from '../routes/Stock/OutStock/';
 import Stock_outStockDetail from '../routes/Stock/OutStock/detail';
 
@@ -45,25 +44,30 @@ const data = [{
   path: '',
   children: [
     {
-      name: '工作台',
+      name: 'Dashboard',
       icon: 'dashboard',
       path: 'home',
       code: 'home',
-      redirect: '/home/analysis',
+      show:true,
+      fullPath:'/home',
+      redirect: '/home/desktop',
       children: [
         {
-          name: '分析页',
-          path: 'analysis',
+          name: '工作台',
+          path: 'desktop',
           show: true,
-          code: 'home_analysis',
-          component: Home_Analysis,
-        }],
+          code: 'home_desktop',
+          component: require('../routes/Home/Desktop/'),
+        },
+      ],
     },
     {
       name: '物流管理',
       icon: 'car',
       path: 'logistics',
+      fullPath:'/logistics',
       code: 'logistics',
+      show:true,
       redirect: '/logistics/bulkDelivery',
       children: [
         {
@@ -93,7 +97,9 @@ const data = [{
       name: '仓储管理',
       icon: 'appstore-o',
       path: 'stock',
+      fullPath:'/stock',
       code: 'stock',
+      show:true,
       redirect: '/stock/outStock',
       children: [
         {
@@ -129,6 +135,31 @@ const data = [{
           code: 'stock_orderReturn',
           show: true,
           component: require('../routes/Stock/OrderReturn/'),
+        },
+      ],
+    },
+    {
+      name: '财务管理',
+      icon: 'pay-circle-o',
+      path: 'finance',
+      fullPath:'/finance',
+      code: 'finance',
+      show:true,
+      redirect: '/finance/shopTradeAnalysis',
+      children: [
+        {
+          name: '店铺交易分析报表',
+          path: 'shopTradeAnalysis',
+          show: true,
+          code: 'finance_shopTradeAnalysis',
+          component: require('../routes/Finance/ShopTradeAnalysis/'),
+        },
+        {
+          name: '订单退货成本',
+          path: 'orderCancelCost',
+          show: true,
+          code: 'finance_orderCancelCost',
+          component: require('../routes/Finance/OrderCancelCost/'),
         },
       ],
     },

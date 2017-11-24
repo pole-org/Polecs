@@ -2,7 +2,7 @@ import pathToRegexp from 'path-to-regexp';
 import {loadList} from '../services/home.service';
 
 export default {
-  namespace: 'home',
+  namespace: 'finance_shopTradeAnalysis',
   state: {
     data: {
       list: [],

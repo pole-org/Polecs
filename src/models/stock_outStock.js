@@ -3,7 +3,7 @@ import {routerRedux} from 'dva/router';
 import {message} from 'antd';
 import pathToRegExp from 'path-to-regexp';
 import BaseModel from './extra/base.model';
-import {loadList, loadDetail, confirmPicking, confirmOutStock} from '../services/stock/stock.outStock.service';
+import {loadList, loadDetail, confirmPicking, confirmOutStock, reject} from '../services/stock/stock.outStock.service';
 import rs from '../rs/';
 
 export default modelExtend(BaseModel, {
@@ -109,8 +109,14 @@ export default modelExtend(BaseModel, {
         message.success(data.msg);
       }
     },
+    *reject({payload}, {call, put}) {
+      const data = yield call(reject, payload);
+      if (data.success) {
+        message.success(data.msg);
+      }
+      return Promise.resolve(data.success);
+    },
   },
-
   reducers: {
     setQuery(state, payload) {
       return {

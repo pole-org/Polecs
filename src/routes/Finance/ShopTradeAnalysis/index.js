@@ -1,19 +1,20 @@
 import React, {PureComponent} from 'react';
 import {connect} from 'dva';
 import {Card, Form, Button, Table, DatePicker, Progress, Badge} from 'antd';
-import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import rs from '../../rs/';
+import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
+import rs from '../../../rs/';
 
 const FormItem = Form.Item;
 
+const modelNamespace = 'finance_shopTradeAnalysis';
 @connect(state => ({
-    home: state.home,
+    [modelNamespace]: state[modelNamespace],
     loading: state.loading,
   })
 )
 @Form.create()
-@rs.component.injectRole('home_analysis')
-@rs.component.injectModel('home')
+@rs.component.injectRole(modelNamespace)
+@rs.component.injectModel(modelNamespace)
 export default class TableList extends PureComponent {
   state = {
     columns: [
@@ -164,7 +165,8 @@ export default class TableList extends PureComponent {
   }
 
   exportData = () => {
-    const {home: {data: {list}}} = this.props;
+    const {model} = this.props;
+    const {[model.name]: {data: {list}}} = this.props;
     let arr = list.concat([])
     const title = [
       {"value": "店铺名称", "type": "ROW_HEADER_HEADER", "datatype": "string"},
@@ -227,7 +229,8 @@ export default class TableList extends PureComponent {
   }
 
   render() {
-    const {home: {data}, loading, model} = this.props;
+    const {model} = this.props;
+    const {[model.name]: {data}, loading} = this.props;
     const {columns} = this.state
     return (
       <PageHeaderLayout >
@@ -249,3 +252,4 @@ export default class TableList extends PureComponent {
     );
   }
 }
+

@@ -80,9 +80,28 @@ export function getRouteData(path) {
   return nodeList;
 }
 
-export function getAllNav() {
+function getRedirectNode(nodeList) {
   const arr = [];
-  console.log(getRouteData('BasicLayout'))
+  nodeList.forEach((node) => {
+    const item = node;
+    if (item.redirect && item.show) {
+      arr.push(item);
+      if (item.children) {
+        arr.push(...getRedirectNode(item.children));
+      }
+    }
+  });
+  return arr;
+}
+
+export function getRedirectData(layout) {
+  if (!navData.some(item => item.layout === layout) ||
+    !(navData.filter(item => item.layout === layout)[0].children)) {
+    return null;
+  }
+  const dataList = cloneDeep(navData.filter(item => item.layout === layout)[0]);
+  const nodeList = getRedirectNode(dataList.children.filter(x => x.show));
+  return nodeList;
 }
 
 export function digitUppercase(n) {

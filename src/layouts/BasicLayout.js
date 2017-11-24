@@ -15,7 +15,7 @@ import HeaderSearch from '../components/HeaderSearch';
 import NoticeIcon from '../components/NoticeIcon';
 import GlobalFooter from '../components/GlobalFooter';
 import {getNavData} from '../common/nav';
-import {getRouteData} from '../utils/utils';
+import {getRouteData, getRedirectData} from '../utils/utils';
 
 import rs from '../rs/';
 
@@ -76,11 +76,9 @@ class BasicLayout extends React.PureComponent {
   }
 
   componentDidMount() {
-    NProgress.start();
     this.props.dispatch({
       type: 'user/query',
     });
-    // NProgress.done();
   }
 
   componentWillUnmount() {
@@ -370,7 +368,7 @@ class BasicLayout extends React.PureComponent {
                       size="small"
                       className={styles.avatar}
                       src={rs.util.string.isNullOrEmpty(currentUser.head_imgurl)
-                        ? rs.config.defaultAvator : currentUser.head_imgurl}
+                        ? rs.config.defaultAvator : `${rs.config.getConfig('imgUrl')}${currentUser.head_imgurl}`}
                     />
                     {currentUser.user_name}
                   </span>
@@ -382,14 +380,6 @@ class BasicLayout extends React.PureComponent {
             <Switch>
               {
                 getRouteData('BasicLayout').map(item => {
-                    if (item.redirect) {
-                      return (<div><Route
-                        exact={item.exact}
-                        key={item.path}
-                        path={item.path}
-                        component={item.component}
-                      /> < Redirect from={item.path} to={item.redirect}/></div>);
-                    }
                     return (
                       <Route
                         exact={item.exact}
@@ -401,7 +391,18 @@ class BasicLayout extends React.PureComponent {
                   }
                 )
               }
-              <Redirect to="/home/analysis"/>
+              {
+                getRedirectData('BasicLayout').map(item => {
+                  if (item.redirect) {
+                    return (
+                      <Redirect
+                        from={item.fullPath}
+                        to={item.redirect}
+                      />
+                    );
+                  }
+                })
+              }
             </Switch>
             {/*<GlobalFooter*/}
             {/*links={[{*/}

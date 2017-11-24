@@ -67,7 +67,10 @@
     "react/jsx-max-props-per-line":0,
     "react/jsx-indent-props":0,
     "react/no-unused-state":0,
+    "react/no-string-refs":0,
+    "no-mixed-operators": 0,
     "spaced-comment":0,
+    "no-empty":0,
     "no-use-before-define": [
       0
     ],

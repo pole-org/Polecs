@@ -10,6 +10,11 @@ export default {
     currentUser: {
       user_name: '',
       head_imgurl: '',
+      job:'',
+      deptName:'',
+      orgName:'',
+      ip:'',
+      lastLoginDate:null,
     },
     moduleList: [],
     viewList: [],

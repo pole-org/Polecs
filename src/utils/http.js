@@ -18,7 +18,7 @@ ajax.interceptors.response.use((res) => {
   if (res.status === 207) {
     setTimeout(() => {
       loadingService.done();
-      window.location.href = `#/user/login?from=#/home/analysis`;
+      window.location.href = `#/user/login?from=#/home/desktop`;
     }, 0);
     return false;
   } else {

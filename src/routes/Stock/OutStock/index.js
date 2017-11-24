@@ -1,6 +1,21 @@
 import React, {PureComponent} from 'react';
 import {connect} from 'dva';
-import {Card, Form, Button, Table, DatePicker, Checkbox, Radio, Tag, Badge} from 'antd';
+import {
+  Card,
+  Form,
+  Button,
+  Table,
+  DatePicker,
+  Checkbox,
+  Radio,
+  Tag,
+  Badge,
+  Input,
+  Menu,
+  Dropdown,
+  Popconfirm,
+  Icon,
+} from 'antd';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
 import rs from '../../../rs/';
 
@@ -60,6 +75,14 @@ export default class StockOutStock extends PureComponent {
             </div>
           );
         },
+      },
+      {
+        title: '来源店铺',
+        dataIndex: 'shop_name',
+        key: 'shop_name',
+        // render: (text) => {
+        //   return (<strong>{text}</strong>);
+        // },
       },
       {
         title: '类型',
@@ -148,7 +171,42 @@ export default class StockOutStock extends PureComponent {
         dataIndex: 'op',
         key: 'op',
         render: (text, record) => {
-          return (<a onClick={() => this.showDetail(record.apply_serial)}>查看详情</a>);
+          const menu = (
+            <Menu>
+              {/*<Menu.Item>*/}
+              {/*<a onClick={() => this.openRemarkModel(record)}>备注</a>*/}
+              {/*</Menu.Item>*/}
+              <Menu.Item>
+                <Popconfirm
+                  placement="left"
+                  title={'确定要驳回吗，驳回后将无法撤回。'}
+                  onConfirm={() => this.reject(record.apply_serial)}>
+                  <a>驳回</a>
+                </Popconfirm>
+              </Menu.Item>
+            </Menu>
+          );
+
+          const MoreBtn = () => (
+            <Dropdown overlay={menu}>
+              <a>
+                更多 <Icon type="down"/>
+              </a>
+            </Dropdown>
+          );
+          return (
+            <div>
+              <a onClick={() => this.showDetail(record.apply_serial)}>查看详情</a>
+              {
+                record.apply_type === 1 && record.apply_status === 0 ?
+                  [
+                    <span className="ant-divider"/>,
+                    <MoreBtn/>,
+                  ]
+                  : null
+              }
+            </div>
+          );
         },
       },
     ],
@@ -185,6 +243,7 @@ export default class StockOutStock extends PureComponent {
             : fieldsValue.startDate.format('YYYY-MM-DD'),
           applyTypeList: fieldsValue.applyTypeList,
           statusList: fieldsValue.statusList,
+          applySerial: fieldsValue.applySerial,
         };
         model.call('loadList', {
           ...query,
@@ -210,6 +269,22 @@ export default class StockOutStock extends PureComponent {
     });
   }
 
+  reject = (serialNo) => {
+    const {model} = this.props;
+    rs.util.loadingService.startSubmit();
+    model.dispatch({
+      type: 'reject',
+      payload: {
+        applySerial: serialNo,
+      },
+    }).then(res => {
+      rs.util.loadingService.done();
+      if (res) {
+        this.handleSearch();
+      }
+    });
+  }
+
   renderForm() {
     const {getFieldDecorator} = this.props.form;
     return (
@@ -217,6 +292,13 @@ export default class StockOutStock extends PureComponent {
         <FormItem label="开始时间">
           {getFieldDecorator('startDate', {})(
             <DatePicker foramt="YYYY-MM-DD HH:MM:SS" style={{width: 200}} placeholder="请选择开始时间"/>
+          )}
+        </FormItem>
+        <FormItem label="流水号">
+          {getFieldDecorator('applySerial', {
+            initialValue: '',
+          })(
+            <Input style={{width: 200}} placeholder="请输入流水号"/>
           )}
         </FormItem>
         <FormItem label="类型">

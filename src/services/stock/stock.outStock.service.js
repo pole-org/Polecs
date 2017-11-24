@@ -1,7 +1,7 @@
 import rs from '../../rs/';
 
 export async function loadList(params) {
-  return rs.http.post('/StockOutStockApply/LoadProcessingApply', params);
+  return rs.http.post('/StockOutStockApply/LoadApply', params);
 }
 
 export async function loadDetail(params) {
@@ -14,4 +14,8 @@ export async function confirmPicking(params) {
 
 export async function confirmOutStock(params) {
   return rs.http.post('/StockOutStockApply/OutStock', params);
+}
+
+export async function reject(params) {
+  return rs.http.post('/StockOutStockApply/Reject', params);
 }

@@ -1,12 +1,14 @@
 import React, {Component} from 'react';
 import Debounce from 'lodash-decorators/debounce';
+import RcPrint from 'rc-print'
 import {connect} from 'dva';
 import {Link} from 'dva/router';
-import {Button, Icon, Row, Col, Steps, Card, Modal, Badge, Table, Spin} from 'antd';
+import {Button, Icon, Row, Col, Steps, Card, Modal, Badge, Table, Spin, Form} from 'antd';
 import classNames from 'classnames';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
 import DescriptionList from '../../../components/DescriptionList';
-import styles from '../../../theme/common.less';
+import styles from './OutStock.less';
+
 
 import rs from '../../../rs/';
 import ProductInfo from '../../../myComponents/ProductInfo/';
@@ -14,6 +16,7 @@ import ProductInfo from '../../../myComponents/ProductInfo/';
 const {Step} = Steps;
 const {Description} = DescriptionList;
 const ButtonGroup = Button.Group;
+const FormItem = Form.Item;
 
 const getWindowWidth = () => (window.innerWidth || document.documentElement.clientWidth);
 
@@ -78,7 +81,7 @@ export default class OutStockApplyDetail extends Component {
         },
       },
       {
-        title: '商品编号',
+        title: '商品ID',
         dataIndex: 'proId',
         key: 'proId',
       },
@@ -139,6 +142,42 @@ export default class OutStockApplyDetail extends Component {
         },
       },
     ],
+    printSkuColumns: [
+      {
+        title: '图片',
+        dataIndex: 'pro-img',
+        key: 'pro-img',
+        render: (text, record) => {
+          return (<ProductInfo proId={record.proId}/>);
+        },
+      },
+      {
+        title: '商品ID',
+        dataIndex: 'proId',
+        key: 'proId',
+      },
+      {
+        title: '商品SKU',
+        dataIndex: 'skuCode',
+        key: 'skuCode',
+      },
+      {
+        title: '仓库',
+        dataIndex: 'warName',
+        key: 'warName',
+      },
+      {
+        title: '货架',
+        dataIndex: 'hjNo',
+        key: 'hjNo',
+      },
+      {
+        title: '数量',
+        dataIndex: 'proNum',
+        key: 'proNum',
+      },
+    ],
+    visible: false,
     updateList: [],
   }
 
@@ -326,6 +365,21 @@ export default class OutStockApplyDetail extends Component {
     );
   }
 
+  openPrint = () => {
+    this.setState({
+      visible: true,
+    });
+  }
+  closePrint = () => {
+    this.setState({
+      visible: false,
+    });
+  }
+  startPrint = () => {
+    this.refs.rcPrint.onPrint();
+    this.closePrint();
+  }
+
   render() {
     const {stepDirection} = this.state;
     const {
@@ -405,17 +459,29 @@ export default class OutStockApplyDetail extends Component {
                   title="SKU列表"
                   bordered={false}
                   style={{marginBottom: 24}}
-                  extra={updateList.length > 0 ?
-                    <Button
-                      type="primary"
-                      size="small"
-                      onClick={() => this.confirmPicking('more')}
-                    >批量捡货
-                    </Button> : null}
                 >
+                  <div style={{marginBottom: 24}}>
+                    <Form layout="inline">
+                      {updateList.length > 0 ?
+                        <FormItem>
+                          <Button
+                            type="primary"
+                            onClick={() => this.confirmPicking('more')}
+                          >批量捡货
+                          </Button>
+                        </FormItem> : null}
+                      <Button icon="printer" onClick={() => {
+                        this.openPrint();
+                      }}
+                      >
+                        打印
+                      </Button>
+                    </Form>
+                  </div>
                   <Table
                     rowSelection={skuList.some(x => x.status === 0) ? rowSelection : null}
                     pagination={false}
+                    size="middle"
                     dataSource={skuList}
                     selectedRowKeys={this.state.updateList}
                     columns={this.state.skuColumns}
@@ -432,15 +498,25 @@ export default class OutStockApplyDetail extends Component {
               </Card>
             )}
         </Spin>
-        {/*<Modal*/}
-        {/*title=""*/}
-        {/*visible={visible}*/}
-        {/*onOk={this.handleOk}*/}
-        {/*confirmLoading={confirmLoading}*/}
-        {/*onCancel={this.handleCancel}*/}
-        {/*>*/}
-        {/*<p>{ModalText}</p>*/}
-        {/*</Modal>*/}
+        <Modal
+          title="打印预览"
+          visible={this.state.visible}
+          onOk={() => this.startPrint()}
+          onCancel={() => this.closePrint()}
+          width={1200}
+        >
+          <div>
+            <RcPrint ref="rcPrint" clearIframeCache>
+              <Table
+                bordered
+                pagination={false}
+                size="middle"
+                dataSource={skuList}
+                columns={this.state.printSkuColumns}
+              />
+            </RcPrint>
+          </div>
+        </Modal>
       </PageHeaderLayout>
     );
   }
