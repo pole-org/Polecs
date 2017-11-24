@@ -81,22 +81,10 @@ const members = [
 export default class Workplace extends PureComponent {
   componentDidMount() {
     const {dispatch} = this.props;
-    dispatch({
-      type: 'project/fetchNotice',
-    });
-    dispatch({
-      type: 'activities/fetchList',
-    });
-    dispatch({
-      type: 'chart/fetch',
-    });
   }
 
   componentWillUnmount() {
     const {dispatch} = this.props;
-    dispatch({
-      type: 'chart/clear',
-    });
   }
 
   renderActivities() {
@@ -139,7 +127,6 @@ export default class Workplace extends PureComponent {
       activities: {loading: activitiesLoading},
       chart: {radarData},
     } = this.props;
-    console.log(currentUser)
 
     const pageHeaderContent = (
       <div className={styles.pageHeaderContent}>

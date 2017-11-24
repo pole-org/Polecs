@@ -10,9 +10,9 @@ const config = {
     imgUrl: 'http://erpimg1.polelong.com',
   },
   prod: {
-    api: 'http://testerp.polelong.com',
+    api: 'http://erp.polelong.com',
     url: 'http://polecs.polelong.com',
-    dataApi: 'http://testerp.polelong.com/Api/V1',
+    dataApi: 'http://erp.polelong.com/Api/V1',
     imgUrl: 'http://erpimg1.polelong.com',
   },
   getConfig(key) {

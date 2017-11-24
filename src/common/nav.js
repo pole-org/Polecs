@@ -74,7 +74,7 @@ const data = [{
           name: '大货发货申请',
           path: 'bulkDelivery',
           code: 'logistics_bulk_delivery',
-          show: true,
+          show: false,
           component: require('../routes/Logistic/BulkDelivery/index'),
         },
         {
