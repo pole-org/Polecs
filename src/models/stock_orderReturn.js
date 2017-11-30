@@ -6,6 +6,7 @@ import BaseModel from './extra/base.model';
 import {load, cancel, receive, addRemark, changeCost} from '../services/stock/orderReturn.service';
 import {getWar, getHj} from '../services/stock/warehouse.service';
 import {loadList} from '../services/finance/orderCancelCost.service';
+import rs from  '../rs/';
 
 export default modelExtend(BaseModel, {
   namespace: 'stock_orderReturn',
@@ -101,6 +102,12 @@ export default modelExtend(BaseModel, {
         })
       }
     },
+    *changeReturnType({payload}, {call, put}) {
+      const data = yield call(loadList, payload);
+      if (data) {
+        yield put(routerRedux.push(`/stock/orderReturn?type=${payload.type}`))
+      }
+    },
   },
 
   reducers: {},
@@ -116,6 +123,7 @@ export default modelExtend(BaseModel, {
             payload: {
               pageIndex: 1,
               pageSize: localStorage.getItem('pageSize') == null ? 10 : parseInt(localStorage.getItem('pageSize')),
+              type: rs.util.url.query('type') === null ? 0 : rs.util.url.query('type'),
             },
           });
         }

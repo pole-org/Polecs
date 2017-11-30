@@ -123,6 +123,16 @@
   }
 }
 
+:global {
+  .ant-modal-scroll {
+    top: 20px !important;
+    .ant-modal-body{
+      max-height: ~"calc(100vh - 150px)";
+      overflow: auto;
+    }
+  }
+}
+
 .sider {
   min-height: 100vh;
   box-shadow: 2px 0 6px rgba(0, 21, 41, .35);

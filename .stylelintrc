@@ -20,6 +20,8 @@
     "selector-list-comma-newline-after": null,
     "selector-pseudo-element-colon-notation": null,
     "unit-no-unknown": null,
-    "value-list-max-empty-lines": null
+    "value-list-max-empty-lines": null,
+    "block-opening-brace-space-before":null,
+    "max-empty-lines":null
   }
 }

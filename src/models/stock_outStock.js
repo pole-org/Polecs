@@ -3,7 +3,14 @@ import {routerRedux} from 'dva/router';
 import {message} from 'antd';
 import pathToRegExp from 'path-to-regexp';
 import BaseModel from './extra/base.model';
-import {loadList, loadDetail, confirmPicking, confirmOutStock, reject} from '../services/stock/stock.outStock.service';
+import {
+  loadList,
+  loadDetail,
+  confirmPicking,
+  confirmOutStock,
+  confirmOrderOutStock,
+  reject,
+} from '../services/stock/stock.outStock.service';
 import rs from '../rs/';
 
 export default modelExtend(BaseModel, {
@@ -98,6 +105,19 @@ export default modelExtend(BaseModel, {
     },
     *confirmOutStock({payload}, {call, put}) {
       const data = yield call(confirmOutStock, payload);
+      if (data.success) {
+        rs.util.loadingService.done();
+        yield put({
+          type: 'loadDetail',
+          payload: {
+            applySerial: payload.applySerial,
+          },
+        });
+        message.success(data.msg);
+      }
+    },
+    *confirmOrderOutStock({payload}, {call, put}) {
+      const data = yield call(confirmOrderOutStock, payload);
       if (data.success) {
         rs.util.loadingService.done();
         yield put({

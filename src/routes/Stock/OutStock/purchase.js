@@ -30,15 +30,11 @@ const RadioButton = Radio.Button;
   })
 )
 @Form.create()
-@rs.component.injectRole('stock_outStock')
+@rs.component.injectRole('stock_purchaseOutStock')
 @rs.component.injectModel('stock_outStock')
 @rs.component.injectPagination({model: 'stock_outStock'})
-export default class StockOutStock extends PureComponent {
+export default class extends PureComponent {
   state = {
-    typeOptions: [
-      {label: '大货发货', value: 0},
-      {label: '订单发货', value: 1},
-    ],
     statusOptions: [
       {label: '新的申请', value: 0},
       {label: '正在捡货', value: 3},
@@ -50,9 +46,6 @@ export default class StockOutStock extends PureComponent {
         title: '流水号',
         dataIndex: 'apply_serial',
         key: 'apply_serial',
-        // render: (text) => {
-        //   return (<strong>{text}</strong>);
-        // },
       },
       {
         title: '来源信息',
@@ -80,9 +73,6 @@ export default class StockOutStock extends PureComponent {
         title: '来源店铺',
         dataIndex: 'shop_name',
         key: 'shop_name',
-        // render: (text) => {
-        //   return (<strong>{text}</strong>);
-        // },
       },
       {
         title: '类型',
@@ -241,7 +231,7 @@ export default class StockOutStock extends PureComponent {
         const values = {
           startDate: fieldsValue.startDate === undefined || fieldsValue.startDate === null ? null
             : fieldsValue.startDate.format('YYYY-MM-DD'),
-          applyTypeList: fieldsValue.applyTypeList,
+          applyTypeList: [1],
           statusList: fieldsValue.statusList,
           applySerial: fieldsValue.applySerial,
         };
@@ -301,11 +291,6 @@ export default class StockOutStock extends PureComponent {
             <Input style={{width: 200}} placeholder="请输入流水号"/>
           )}
         </FormItem>
-        <FormItem label="类型">
-          {getFieldDecorator('applyTypeList')(
-            <CheckboxGroup options={this.state.typeOptions}/>
-          )}
-        </FormItem>
         <FormItem label="状态">
           {getFieldDecorator('statusList', {
             initialValue: [0, 3, 4]
@@ -352,4 +337,6 @@ export default class StockOutStock extends PureComponent {
     );
   }
 }
+
+
 

@@ -114,7 +114,21 @@ const data = [{
           path: 'outStock',
           code: 'stock_outStock',
           show: true,
-          component: Stock_OutStock,
+          component: require('../routes/Stock/OutStock/'),
+        },
+        {
+          name: '散单出库',
+          path: 'purchaseOutStock',
+          code: 'stock_purchaseOutStock',
+          show: true,
+          component: require('../routes/Stock/OutStock/purchase'),
+        },
+        {
+          name: '大货出库',
+          path: 'bulkOutStock',
+          code: 'stock_bulkOutStock',
+          show: true,
+          component: require('../routes/Stock/OutStock/bulk'),
         },
         {
           name: '详情',

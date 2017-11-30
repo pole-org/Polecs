@@ -3,7 +3,7 @@ import Debounce from 'lodash-decorators/debounce';
 import RcPrint from 'rc-print'
 import {connect} from 'dva';
 import {Link} from 'dva/router';
-import {Button, Icon, Row, Col, Steps, Card, Modal, Badge, Table, Spin, Form} from 'antd';
+import {Button, Icon, Row, Col, Steps, Card, Modal, Badge, Table, Spin, Form, InputNumber} from 'antd';
 import classNames from 'classnames';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
 import DescriptionList from '../../../components/DescriptionList';
@@ -67,6 +67,7 @@ const columns = [
   outStock: state.stock_outStock,
   loading: state.loading,
 }))
+@rs.component.injectModel('stock_outStock')
 export default class OutStockApplyDetail extends Component {
   state = {
     operationType: 'detail',
@@ -132,15 +133,32 @@ export default class OutStockApplyDetail extends Component {
         },
       },
       {
-        title: '操作',
-        dataIndex: 'op',
-        key: 'op',
-        render: (text, record) => {
-          if (record.status === 0) {
-            return (<a onClick={() => this.confirmPicking('one', record)}>确认捡货</a>);
+        title: '实际捡货数量',
+        dataIndex: 'stockNum',
+        key: 'stockNum',
+        render: (text, record, index) => {
+          if (record.status !== 0) {
+            return text;
           }
-        },
+          return (
+            <InputNumber
+              max={text}
+              value={text}
+              onChange={value => this.changeValue(value, index)}
+            />
+          );
+        }
       },
+      // {
+      //   title: '操作',
+      //   dataIndex: 'op',
+      //   key: 'op',
+      //   render: (text, record) => {
+      //     if (record.status === 0) {
+      //       return (<a onClick={() => this.confirmPicking('one', record)}>确认捡货</a>);
+      //     }
+      //   },
+      // },
     ],
     printSkuColumns: [
       {
@@ -175,6 +193,9 @@ export default class OutStockApplyDetail extends Component {
         title: '数量',
         dataIndex: 'proNum',
         key: 'proNum',
+      },
+      {
+        title: '实际捡货数量(手填)',
       },
     ],
     visible: false,
@@ -279,6 +300,24 @@ export default class OutStockApplyDetail extends Component {
     );
   }
 
+  changeValue = (value, index) => {
+    console.log(value)
+    const {outStock} = this.props;
+    const {outStock: {detail}} = this.props;
+    const {model, outStock: {detail: {skuList}}} = this.props;
+    const list = skuList.concat([]);
+    list[index].stockNum = value;
+    model.setState({
+      outStock: {
+        ...outStock,
+        detail: {
+          ...detail,
+          skuList: list,
+        }
+      }
+    });
+  }
+
   confirmPicking = (type, row) => {
     const {dispatch, outStock: {detail: {serialNo}, updateList}} = this.props;
     Modal.confirm({
@@ -294,6 +333,8 @@ export default class OutStockApplyDetail extends Component {
             sku_code: row.skuCode,
             warId: row.warId,
             hjNo: row.hjNo,
+            count: row.proNum,
+            actualCount: row.stockNum,
           });
         } else {
           updateList.map(x => {
@@ -302,6 +343,8 @@ export default class OutStockApplyDetail extends Component {
               sku_code: x.skuCode,
               warId: x.warId,
               hjNo: x.hjNo,
+              count: x.proNum,
+              actualCount: x.stockNum,
             });
           });
         }

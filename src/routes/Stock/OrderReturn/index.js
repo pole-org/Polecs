@@ -18,6 +18,8 @@ import {
   InputNumber,
   Radio,
   Popconfirm,
+  Tabs,
+
 } from 'antd';
 import CountDown from 'ant-design-pro/lib/CountDown';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
@@ -31,6 +33,8 @@ function fixedZero(val) {
 const FormItem = Form.Item;
 const Option = Select.Option;
 const RadioGroup = Radio.Group;
+const CheckGroup = Checkbox.Group;
+const TabPane = Tabs.TabPane;
 
 @connect(state => ({
   orderReturn: state.stock_orderReturn,
@@ -79,23 +83,6 @@ export default class StockProductSku extends PureComponent {
         key: 'shopName',
       },
       {
-        title: '退货类型',
-        dataIndex: 'type',
-        key: 'type',
-        render: (text) => {
-          let type = '';
-          switch (text) {
-            case 0:
-              type = "订单取消";
-              break;
-            case 1:
-              type = "订单退款";
-              break;
-          }
-          return <Tag>{type}</Tag>;
-        },
-      },
-      {
         title: '是否入库',
         dataIndex: 'instockStatus',
         key: 'instockStatus',
@@ -125,6 +112,7 @@ export default class StockProductSku extends PureComponent {
           if (record.isCancel) {
             return "已过期";
           } else {
+            let days = record.type === 0 ? 30 : 180
             if (record.status === 0) {
               const dateTime = new Date(parseInt(record.createDate.substring(6
                 , record.createDate.length - 2)));
@@ -142,7 +130,7 @@ export default class StockProductSku extends PureComponent {
                     <span>{d}天 {h % 24}时 {m}分 {s}秒</span>
                   );
                 }}
-                target={dateTime.getTime() + (30 * 60 * 60 * 24 * 1000)}
+                target={dateTime.getTime() + (days * 60 * 60 * 24 * 1000)}
               />);
             }
           }
@@ -198,7 +186,7 @@ export default class StockProductSku extends PureComponent {
         title: '操作',
         dataIndex: 'op',
         key: 'op',
-        width: 150,
+        width: 220,
         render: (text, record) => {
           if (record.isCancel || record.status === 2) {
             return null;
@@ -234,9 +222,10 @@ export default class StockProductSku extends PureComponent {
           );
           return (
             <div>
-              {record.instockStatus === 1 ?
-                <a onClick={() => this.openInstockModal(record)}>收货入库</a> :
-                <a onClick={() => this.openPurchaseModal(record)}>结算成本</a>
+              <a onClick={() => this.openInstockModal(record)}>收货入库</a>
+              {record.type === 0 ? [
+                <span className="ant-divider"/>,
+                <a onClick={() => this.openPurchaseModal(record)}>结算成本</a>] : null
               }
               <span className="ant-divider"/>
               <MoreBtn/>
@@ -255,28 +244,32 @@ export default class StockProductSku extends PureComponent {
   /**
    * 全局的加载方法
    */
-  handleSearch = () => {
+  handleSearch = (page) => {
     const {orderReturn: {pageIndex, pageSize}, model, form, myShop} = this.props;
     model.setState({
       data: {
         list: [],
         total: 0,
       },
+      pageIndex: page === undefined ? pageIndex : page,
     }).then(() => {
       form.validateFields((err, fieldsValue) => {
         if (err) return;
         const proId = fieldsValue.proId === undefined ? null : fieldsValue.proId;
         const shopId = rs.util.string.isNullOrEmpty(fieldsValue.shopName) ?
           null : myShop.filter(x => x.shopName === fieldsValue.shopName)[0].shopId;
-        const isOk = fieldsValue.isOk === undefined ? false : fieldsValue.isOk;
+        const isOk = false;
         model.dispatch({
           type: 'load',
           payload: {
             isOk,
             orderNo: fieldsValue.orderNo,
+            orderId: fieldsValue.orderId,
+            skuCode: fieldsValue.skuCode,
+            type: rs.util.url.query('type') === null ? 0 : rs.util.url.query('type'),
             shopId,
             proId,
-            pageIndex,
+            pageIndex: page === undefined ? pageIndex : page,
             pageSize,
           },
         });
@@ -428,6 +421,24 @@ export default class StockProductSku extends PureComponent {
     });
   }
 
+  changeReturnType = (type) => {
+    const {model} = this.props;
+    model.setState({
+      data: {
+        list: [],
+        total: 0,
+      },
+    }).then(() => {
+      model.dispatch({
+        type: 'changeReturnType',
+        payload: {
+          type,
+        }
+      });
+    });
+  }
+
+
   renderForm() {
     const {myShop} = this.props;
     const {getFieldDecorator} = this.props.form;
@@ -438,11 +449,21 @@ export default class StockProductSku extends PureComponent {
             <Input placeholder="请输入商品ID"/>
           )}
         </FormItem>
-        <FormItem label="订单编号">
-          {getFieldDecorator('orderNo')(
-            <Input placeholder="请输入订单编号"/>
+        <FormItem label="SKU编号">
+          {getFieldDecorator('skuCode')(
+            <Input style={{width: 240}} placeholder="请输入sku编号"/>
           )}
         </FormItem>
+        <FormItem label="订单ID">
+          {getFieldDecorator('orderId')(
+            <Input placeholder="请输入订单ID"/>
+          )}
+        </FormItem>
+        {/*<FormItem label="订单编号(BID)">*/}
+        {/*{getFieldDecorator('orderNo')(*/}
+        {/*<Input placeholder="请输入订单编号"/>*/}
+        {/*)}*/}
+        {/*</FormItem>*/}
         <FormItem label="选择店铺">
           {getFieldDecorator('shopName', {})(
             <Select
@@ -460,18 +481,18 @@ export default class StockProductSku extends PureComponent {
             </Select>
           )}
         </FormItem>
-        <FormItem >
-          {getFieldDecorator('isOk', {
-            initialValue: true,
-          })(
-            <Checkbox >已处理申请</Checkbox>
-          )}
-        </FormItem>
+        {/*<FormItem >*/}
+          {/*{getFieldDecorator('isOk', {*/}
+            {/*initialValue: true,*/}
+          {/*})(*/}
+            {/*<Checkbox >已处理申请</Checkbox>*/}
+          {/*)}*/}
+        {/*</FormItem>*/}
         <FormItem>
           <Button
             type="primary"
             icon="search"
-            onClick={() => this.handleSearch()}
+            onClick={() => this.handleSearch(1)}
           >查询
           </Button>
         </FormItem>
@@ -574,6 +595,7 @@ export default class StockProductSku extends PureComponent {
             }],
           })(
             <Select
+              showSearch
               placeholder="请选择货架"
             >
               {hjList.map(x => (
@@ -597,11 +619,17 @@ export default class StockProductSku extends PureComponent {
   }
 
   render() {
-    const {loading, model} = this.props;
+    const {loading, model, orderReturn: {returnType}} = this.props;
     const {getFieldDecorator} = this.props.form;
     return (
       <PageHeaderLayout >
         <Card bordered={false}>
+          <Tabs activeKey={rs.util.url.query('type') === null ? "0" : rs.util.url.query('type')}
+                style={{marginBottom: 8}}
+                onChange={type => this.changeReturnType(type)}>
+            <TabPane tab="国内退货（取消）" key="0" />
+            <TabPane tab="国外退货（退款）" key="1" />
+          </Tabs>
           <div className="tool-bar">
             {this.renderForm()}
           </div>

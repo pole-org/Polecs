@@ -16,6 +16,10 @@ export async function confirmOutStock(params) {
   return rs.http.post('/StockOutStockApply/OutStock', params);
 }
 
+export async function confirmOrderOutStock(params) {
+  return rs.http.post('/StockOutStockApply/OrderOutStock', params);
+}
+
 export async function reject(params) {
   return rs.http.post('/StockOutStockApply/Reject', params);
 }

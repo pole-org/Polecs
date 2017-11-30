@@ -176,7 +176,7 @@ export default class BoxSku extends PureComponent {
   }
 
   returnBoxSku = () => {
-    const {model:{dispatch}, bulkDelivery: {updateList}} = this.props;
+    const {model: {dispatch}, bulkDelivery: {updateList}} = this.props;
     Modal.confirm({
       title: '撤回库存',
       content: '确定要撤回库存吗',
@@ -212,8 +212,8 @@ export default class BoxSku extends PureComponent {
   addBoxSku = () => {
     const {model: {dispatch}, bulkDelivery: {modalList}} = this.props;
     Modal.confirm({
-      title: '申请库存',
-      content: '确定要申请库存吗',
+      title: '装箱',
+      content: '确定要装箱吗',
       okText: '确认',
       cancelText: '取消',
       onOk: () => {
@@ -224,6 +224,7 @@ export default class BoxSku extends PureComponent {
             obj = {
               proId: data.pro_id,
               skuCode: data.sku_code,
+              ASIN: data.ASIN,
               count: data.canApplyCount,
             }
             arr.push(obj);
@@ -282,7 +283,7 @@ export default class BoxSku extends PureComponent {
         <Column title="ASIN" dataIndex="ASIN" key="ASIN"/>
         <Column title="FNSKU" dataIndex="FNSKU" key="FNSKU"/>
         <ColumnGroup title="商品数量">
-          <Column title="总计" dataIndex="allCount" key="allCount"/>
+          <Column title="可用数量" dataIndex="allCount" key="allCount"/>
           <Column title="已装箱" dataIndex="boxCount" key="boxCount"/>
           <Column
             title="可装箱"
