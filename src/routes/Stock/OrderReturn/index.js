@@ -50,27 +50,29 @@ export default class StockProductSku extends PureComponent {
   state = {
     columns: [
       {
-        title: '商品图片',
-        dataIndex: 'pro-img',
-        key: 'pro-img',
-        render: (text, record) => {
-          return (<ProductInfo proId={record.proId}/>);
-        },
-      },
-      // {
-      //   title: '流水号',
-      //   dataIndex: 'serialNo',
-      //   key: 'serialNo',
-      // },
-      {
-        title: '商品编号',
-        dataIndex: 'proId',
-        key: 'proId',
-      },
-      {
-        title: '商品SKU',
-        dataIndex: 'skuCode',
-        key: 'skuCode',
+        title: '商品信息',
+        children: [
+          {
+            title: '图片',
+            dataIndex: 'pro-img',
+            className: 'align-center',
+            key: 'pro-img',
+            render: (text, record) => {
+              return (<ProductInfo proId={record.proId}/>);
+            },
+          },
+          {
+            title: 'ID',
+            dataIndex: 'proId',
+            className: 'align-center',
+            key: 'proId',
+          },
+          {
+            title: 'SKU',
+            dataIndex: 'skuCode',
+            key: 'skuCode',
+          },
+        ]
       },
       {
         title: '来源订单',
@@ -361,7 +363,7 @@ export default class StockProductSku extends PureComponent {
         this.closeModal();
         rs.util.loadingService.done();
         if (res) {
-          this.handleSearch();
+          this.reset();
         }
       });
     });
@@ -401,7 +403,7 @@ export default class StockProductSku extends PureComponent {
       }).then((res) => {
         this.closeModal();
         if (res) {
-          this.handleSearch();
+          this.reset();
         }
       });
     });
@@ -416,7 +418,7 @@ export default class StockProductSku extends PureComponent {
       },
     }).then((res) => {
       if (res) {
-        this.handleSearch()
+        this.reset();
       }
     });
   }
@@ -438,12 +440,23 @@ export default class StockProductSku extends PureComponent {
     });
   }
 
+  reset = () => {
+    const {form} = this.props;
+    form.resetFields();
+    this.handleSearch(1);
+  }
+
 
   renderForm() {
     const {myShop} = this.props;
     const {getFieldDecorator} = this.props.form;
     return (
       <Form layout="inline">
+        <FormItem label="订单ID">
+          {getFieldDecorator('orderId')(
+            <Input placeholder="请输入订单ID"/>
+          )}
+        </FormItem>
         <FormItem label="商品ID">
           {getFieldDecorator('proId')(
             <Input placeholder="请输入商品ID"/>
@@ -452,11 +465,6 @@ export default class StockProductSku extends PureComponent {
         <FormItem label="SKU编号">
           {getFieldDecorator('skuCode')(
             <Input style={{width: 240}} placeholder="请输入sku编号"/>
-          )}
-        </FormItem>
-        <FormItem label="订单ID">
-          {getFieldDecorator('orderId')(
-            <Input placeholder="请输入订单ID"/>
           )}
         </FormItem>
         {/*<FormItem label="订单编号(BID)">*/}
@@ -482,11 +490,11 @@ export default class StockProductSku extends PureComponent {
           )}
         </FormItem>
         {/*<FormItem >*/}
-          {/*{getFieldDecorator('isOk', {*/}
-            {/*initialValue: true,*/}
-          {/*})(*/}
-            {/*<Checkbox >已处理申请</Checkbox>*/}
-          {/*)}*/}
+        {/*{getFieldDecorator('isOk', {*/}
+        {/*initialValue: true,*/}
+        {/*})(*/}
+        {/*<Checkbox >已处理申请</Checkbox>*/}
+        {/*)}*/}
         {/*</FormItem>*/}
         <FormItem>
           <Button
@@ -494,6 +502,13 @@ export default class StockProductSku extends PureComponent {
             icon="search"
             onClick={() => this.handleSearch(1)}
           >查询
+          </Button>
+        </FormItem>
+        <FormItem>
+          <Button
+            icon="reload"
+            onClick={() => this.reset()}
+          >重置
           </Button>
         </FormItem>
       </Form>
@@ -624,11 +639,11 @@ export default class StockProductSku extends PureComponent {
     return (
       <PageHeaderLayout >
         <Card bordered={false}>
-          <Tabs activeKey={rs.util.url.query('type') === null ? "0" : rs.util.url.query('type')}
+          <Tabs activeKey={rs.util.url.query('type', "0")}
                 style={{marginBottom: 8}}
                 onChange={type => this.changeReturnType(type)}>
-            <TabPane tab="国内退货（取消）" key="0" />
-            <TabPane tab="国外退货（退款）" key="1" />
+            <TabPane tab="国内退货（取消）" key="0"/>
+            <TabPane tab="国外退货（退款）" key="1"/>
           </Tabs>
           <div className="tool-bar">
             {this.renderForm()}

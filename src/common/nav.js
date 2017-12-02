@@ -110,7 +110,7 @@ const data = [{
           component: Stock_OutStock,
         },
         {
-          name: '出库申请',
+          name: '大货出库',
           path: 'outStock',
           code: 'stock_outStock',
           show: true,
@@ -122,13 +122,6 @@ const data = [{
           code: 'stock_purchaseOutStock',
           show: true,
           component: require('../routes/Stock/OutStock/purchase'),
-        },
-        {
-          name: '大货出库',
-          path: 'bulkOutStock',
-          code: 'stock_bulkOutStock',
-          show: true,
-          component: require('../routes/Stock/OutStock/bulk'),
         },
         {
           name: '详情',
@@ -176,6 +169,24 @@ const data = [{
           component: require('../routes/Finance/OrderCancelCost/'),
         },
       ],
+    },
+    {
+      name: '系统管理',
+      icon: 'windows',
+      path: 'system',
+      fullPath:'/system',
+      code: 'system',
+      show:true,
+      redirect: '/system/loginLogs',
+      children:[
+        {
+          name: '用户登录日志',
+          path: 'loginLogs',
+          show: true,
+          code: 'system_loginLogs',
+          component: require('../routes/System/LoginLogs/'),
+        },
+      ]
     },
     // {
     //   name: 'Dashboard',

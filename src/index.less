@@ -9,3 +9,26 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+.align(@type:left) {
+  text-align: @type!important;
+}
+
+
+
+:global {
+  .align-left {
+    .align(left);
+  }
+  .align-center {
+    .align(center);
+  }
+  .align-right {
+    .align(right);
+  }
+
+  .padding {
+  }
+;
+
+}

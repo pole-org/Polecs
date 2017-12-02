@@ -57,6 +57,14 @@ component.injectModel = (model) => {
               payload,
             });
           },
+          changeRoute: (path) => {
+            return dispatch({
+              type: `${model}/changeRoute`,
+              payload: {
+                path
+              }
+            });
+          },
         }
         return <WrappedComponent model={_model} {...this.props}/>;
       }

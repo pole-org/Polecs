@@ -4,4 +4,7 @@ module.exports = {
   string: require('./string'),
   url: require('./url'),
   loadingService: require('./loadingService'),
+  lib: require('./lib'),
 };
+
+

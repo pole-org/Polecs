@@ -15,6 +15,7 @@ import {
   Dropdown,
   Popconfirm,
   Icon,
+  Tabs,
 } from 'antd';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
 import rs from '../../../rs/';
@@ -23,23 +24,25 @@ const FormItem = Form.Item;
 const CheckboxGroup = Checkbox.Group;
 const RadioGroup = Radio.Group;
 const RadioButton = Radio.Button;
+const TabPane = Tabs.TabPane;
+
+
+const modelNamespace = 'stock_purchaseOutStock'
 
 @connect(state => ({
-    outStock: state.stock_outStock,
+    outStock: state[modelNamespace],
     loading: state.loading,
   })
 )
 @Form.create()
-@rs.component.injectRole('stock_purchaseOutStock')
-@rs.component.injectModel('stock_outStock')
-@rs.component.injectPagination({model: 'stock_outStock'})
+@rs.component.injectRole(modelNamespace)
+@rs.component.injectModel(modelNamespace)
+@rs.component.injectPagination({model: modelNamespace})
 export default class extends PureComponent {
   state = {
     statusOptions: [
-      {label: '新的申请', value: 0},
-      {label: '正在捡货', value: 3},
-      {label: '捡货完成', value: 4},
-      {label: '处理完成', value: 98},
+      {label: '未处理', value: 0},
+      {label: '已处理', value: 1},
     ],
     columns: [
       {
@@ -54,17 +57,12 @@ export default class extends PureComponent {
         render: (text, record) => {
           return (
             <div>
-              {record.apply_type === 0 ?
-                <span>计划ID：{record.from_no}</span> :
-                <div>
-                  <p>
-                    <span>交易编号：{record.from_no}</span>
-                  </p>
-                  <p>
-                    <span>订单编号：{record.from_item_no}</span>
-                  </p>
-                </div>
-              }
+              <p>
+                <span>交易编号：{record.from_no}</span>
+              </p>
+              <p>
+                <span>订单编号：{record.from_item_no}</span>
+              </p>
             </div>
           );
         },
@@ -73,25 +71,6 @@ export default class extends PureComponent {
         title: '来源店铺',
         dataIndex: 'shop_name',
         key: 'shop_name',
-      },
-      {
-        title: '类型',
-        dataIndex: 'apply_type',
-        key: 'apply_type',
-        render: (text) => {
-          let res = ''
-          switch (text) {
-            case 0:
-              res = '大货发货';
-              break;
-            case 1:
-              res = '订单发货';
-              break;
-            default:
-              res = '大货发货';
-          }
-          return (<Tag>{res}</Tag>);
-        },
       },
       {
         title: '申请人员',
@@ -202,9 +181,9 @@ export default class extends PureComponent {
     ],
   };
 
-  componentDidMount() {
-    this.handleSearch();
-  }
+  // componentDidMount() {
+  //   this.handleSearch();
+  // }
 
   showDetail = (serialNo) => {
     const {model} = this.props;
@@ -218,22 +197,24 @@ export default class extends PureComponent {
     });
   }
 
-  handleSearch = () => {
+  handleSearch = (page) => {
     const {outStock: {query, pageIndex, pageSize}, form, model} = this.props;
     model.setState({
       data: {
         list: [],
         total: 0,
       },
+      pageIndex: rs.util.lib.defaultValue(page, pageIndex),
     }).then(() => {
       form.validateFields((err, fieldsValue) => {
         if (err) return;
         const values = {
-          startDate: fieldsValue.startDate === undefined || fieldsValue.startDate === null ? null
+          startDate: rs.util.string.isNullOrEmpty(fieldsValue.startDate) ? null
             : fieldsValue.startDate.format('YYYY-MM-DD'),
           applyTypeList: [1],
-          statusList: fieldsValue.statusList,
+          status: parseInt(rs.util.url.query('status', 0)),
           applySerial: fieldsValue.applySerial,
+          orderId: 0,
         };
         model.call('loadList', {
           ...query,
@@ -275,6 +256,18 @@ export default class extends PureComponent {
     });
   }
 
+  changeStatus = (status) => {
+    const {model} = this.props;
+    model.setState({
+      data: {
+        list: [],
+        total: 0,
+      },
+    }).then(() => {
+      model.changeRoute(`/stock/purchaseOutStock?status=${status}`);
+    });
+  }
+
   renderForm() {
     const {getFieldDecorator} = this.props.form;
     return (
@@ -291,13 +284,6 @@ export default class extends PureComponent {
             <Input style={{width: 200}} placeholder="请输入流水号"/>
           )}
         </FormItem>
-        <FormItem label="状态">
-          {getFieldDecorator('statusList', {
-            initialValue: [0, 3, 4]
-          })(
-            <CheckboxGroup options={this.state.statusOptions}/>
-          )}
-        </FormItem>
         <FormItem>
           <Button
             type="primary"
@@ -311,6 +297,17 @@ export default class extends PureComponent {
     );
   }
 
+  renderTab() {
+    return (
+      <Tabs activeKey={rs.util.url.query('status', "0") }
+            style={{marginBottom: 8}}
+            onChange={key => this.changeStatus(key)}>
+        <TabPane tab="可操作申请" key="0"/>
+        <TabPane tab="不可操作申请（等待关联子订单采购完成）" key="1"/>
+      </Tabs>
+    )
+  }
+
   render() {
     const {
       outStock: {
@@ -322,6 +319,7 @@ export default class extends PureComponent {
     return (
       <PageHeaderLayout >
         <Card bordered={false}>
+          {this.renderTab()}
           <div className="tool-bar">
             {this.renderForm()}
           </div>

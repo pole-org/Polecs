@@ -301,7 +301,6 @@ export default class OutStockApplyDetail extends Component {
   }
 
   changeValue = (value, index) => {
-    console.log(value)
     const {outStock} = this.props;
     const {outStock: {detail}} = this.props;
     const {model, outStock: {detail: {skuList}}} = this.props;
@@ -544,6 +543,7 @@ export default class OutStockApplyDetail extends Component {
         <Modal
           title="打印预览"
           visible={this.state.visible}
+          className="ant-modal-scroll"
           onOk={() => this.startPrint()}
           onCancel={() => this.closePrint()}
           width={1200}

@@ -22,6 +22,10 @@
     "unit-no-unknown": null,
     "value-list-max-empty-lines": null,
     "block-opening-brace-space-before":null,
-    "max-empty-lines":null
+    "max-empty-lines":null,
+    "block-no-empty":null,
+    "no-extra-semicolons":null,
+    "block-closing-brace-empty-line-before":null
+
   }
 }

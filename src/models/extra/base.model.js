@@ -1,7 +1,9 @@
+import {routerRedux} from 'dva/router';
+
 export default {
   namespace: 'BaseModel',
   state: {
-    pageIndex:1,
+    pageIndex: 1,
     pageSize: localStorage.getItem('pageSize') === null ? 10
       : parseInt(localStorage.getItem('pageSize')),
   },
@@ -19,6 +21,9 @@ export default {
         payload,
       });
     },
+    *changeRoute({payload}, {put}) {
+      yield put(routerRedux.push(payload.path));
+    }
   },
   reducers: {
     setStateOk(state, {payload}) {

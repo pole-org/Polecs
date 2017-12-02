@@ -199,7 +199,7 @@ export default class BoxSku extends PureComponent {
     const {dispatch, bulkDelivery: {modalList}} = this.props;
     const arr = modalList.concat([]);
     arr.map(x => {
-      x.canApplyCount = x.allCount - x.applyCount - x.boxCount;
+      x.canApplyCount = x.allCount - x.boxCount;
     });
     dispatch({
       type: 'logistic_bulkDelivery/setState',
@@ -301,7 +301,7 @@ export default class BoxSku extends PureComponent {
             <div>
               <InputNumber
                 min={0}
-                max={record.allCount - record.boxCount}
+                max={record.allCount}
                 value={record.canApplyCount}
                 onChange={value => this.setValue(value, index)}
               />

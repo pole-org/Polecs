@@ -122,8 +122,8 @@ export default modelExtend(BaseModel, {
             type: 'load',
             payload: {
               pageIndex: 1,
-              pageSize: localStorage.getItem('pageSize') == null ? 10 : parseInt(localStorage.getItem('pageSize')),
-              type: rs.util.url.query('type') === null ? 0 : rs.util.url.query('type'),
+              pageSize: parseInt(rs.util.lib.defaultValue(localStorage.getItem('pageSize'), 10)),
+              type: rs.util.url.query('type', 0),
             },
           });
         }

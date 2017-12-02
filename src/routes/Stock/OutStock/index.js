@@ -55,26 +55,9 @@ export default class StockOutStock extends PureComponent {
         // },
       },
       {
-        title: '来源信息',
+        title: '计划ID',
         dataIndex: 'from_no',
         key: 'from_no',
-        render: (text, record) => {
-          return (
-            <div>
-              {record.apply_type === 0 ?
-                <span>计划ID：{record.from_no}</span> :
-                <div>
-                  <p>
-                    <span>交易编号：{record.from_no}</span>
-                  </p>
-                  <p>
-                    <span>订单编号：{record.from_item_no}</span>
-                  </p>
-                </div>
-              }
-            </div>
-          );
-        },
       },
       {
         title: '来源店铺',
@@ -83,25 +66,6 @@ export default class StockOutStock extends PureComponent {
         // render: (text) => {
         //   return (<strong>{text}</strong>);
         // },
-      },
-      {
-        title: '类型',
-        dataIndex: 'apply_type',
-        key: 'apply_type',
-        render: (text) => {
-          let res = ''
-          switch (text) {
-            case 0:
-              res = '大货发货';
-              break;
-            case 1:
-              res = '订单发货';
-              break;
-            default:
-              res = '大货发货';
-          }
-          return (<Tag>{res}</Tag>);
-        },
       },
       {
         title: '申请人员',
@@ -228,22 +192,23 @@ export default class StockOutStock extends PureComponent {
     });
   }
 
-  handleSearch = () => {
+  handleSearch = (page) => {
     const {outStock: {query, pageIndex, pageSize}, form, model} = this.props;
     model.setState({
       data: {
         list: [],
         total: 0,
       },
+      pageIndex: rs.util.lib.defaultValue(page, pageIndex),
     }).then(() => {
       form.validateFields((err, fieldsValue) => {
         if (err) return;
         const values = {
           startDate: fieldsValue.startDate === undefined || fieldsValue.startDate === null ? null
             : fieldsValue.startDate.format('YYYY-MM-DD'),
-          applyTypeList: fieldsValue.applyTypeList,
           statusList: fieldsValue.statusList,
           applySerial: fieldsValue.applySerial,
+          fromNo: fieldsValue.fromNo,
         };
         model.call('loadList', {
           ...query,
@@ -294,16 +259,18 @@ export default class StockOutStock extends PureComponent {
             <DatePicker foramt="YYYY-MM-DD HH:MM:SS" style={{width: 200}} placeholder="请选择开始时间"/>
           )}
         </FormItem>
+        <FormItem label="计划ID">
+          {getFieldDecorator('fromNo', {
+            initialValue: '',
+          })(
+            <Input style={{width: 200}} placeholder="请输入计划编号"/>
+          )}
+        </FormItem>
         <FormItem label="流水号">
           {getFieldDecorator('applySerial', {
             initialValue: '',
           })(
             <Input style={{width: 200}} placeholder="请输入流水号"/>
-          )}
-        </FormItem>
-        <FormItem label="类型">
-          {getFieldDecorator('applyTypeList')(
-            <CheckboxGroup options={this.state.typeOptions}/>
           )}
         </FormItem>
         <FormItem label="状态">
@@ -318,7 +285,7 @@ export default class StockOutStock extends PureComponent {
             type="primary"
             icon="search"
             style={{marginRight: '10px'}}
-            onClick={() => this.handleSearch()}
+            onClick={() => this.handleSearch(1)}
           >查询
           </Button>
         </FormItem>
