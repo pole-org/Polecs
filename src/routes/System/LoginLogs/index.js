@@ -101,13 +101,14 @@ export default class  extends PureComponent {
   /**
    * 全局的加载方法
    */
-  handleSearch = () => {
+  handleSearch = (page) => {
     const {[modelNameSpace]: {pageIndex, pageSize}, model, form} = this.props;
     model.setState({
       data: {
         list: [],
         total: 0,
       },
+      pageIndex: rs.util.lib.defaultValue(page, pageIndex)
     }).then(() => {
       form.validateFields((err, fieldsValue) => {
         if (err) return;
@@ -167,7 +168,7 @@ export default class  extends PureComponent {
           <Button
             type="primary"
             icon="search"
-            onClick={() => this.handleSearch()}
+            onClick={() => this.handleSearch(1)}
           >查询
           </Button>
         </FormItem>
