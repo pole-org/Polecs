@@ -1,11 +1,13 @@
 import rs from '../../rs/';
+
+const erpApi = rs.config.getConfig('dataApi');
 /**
  * 获取所有本地仓库
  * @param params
  * @returns {Promise.<*|AxiosPromise<T>>}
  */
 export async function getWar(params) {
-  return rs.http.post('/StockProductWarehouse/GetLocalWarehouse', params);
+  return rs.http.post(erpApi + '/StockProductWarehouse/GetLocalWarehouse', params);
 }
 
 /**
@@ -14,7 +16,7 @@ export async function getWar(params) {
  * @returns {Promise.<*|AxiosPromise<T>>}
  */
 export async function getHj(params) {
-  return rs.http.post('/StockProductWarehouse/GetHj', params);
+  return rs.http.post(erpApi + '/StockProductWarehouse/GetHj', params);
 }
 
 /**
@@ -23,5 +25,5 @@ export async function getHj(params) {
  * @returns {Promise.<*|AxiosPromise<T>>}
  */
 export async function changeHj(params) {
-  return rs.http.post('/StockProductWarehouse/ChangeHj', params);
+  return rs.http.post(erpApi + '/StockProductWarehouse/ChangeHj', params);
 }

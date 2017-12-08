@@ -1,12 +1,14 @@
 import rs from '../../rs/';
 
+
+const erpApi = rs.config.getConfig('dataApi');
 /**
  * 加载婚纱城已取消商品
  * @param params
  * @returns {Promise.<*|AxiosPromise<T>>}
  */
 export async function loadSku(params) {
-  return rs.http.post('/StockProductSku/LoadSku', params);
+  return rs.http.post(erpApi + '/StockProductSku/LoadSku', params);
 }
 
 /**
@@ -15,7 +17,7 @@ export async function loadSku(params) {
  * @returns {Promise.<*|AxiosPromise<T>>}
  */
 export async function getWar(params) {
-  return rs.http.post('/StockProductWarehouse/GetLocalWarehouse', params);
+  return rs.http.post(erpApi + '/StockProductWarehouse/GetLocalWarehouse', params);
 }
 
 /**
@@ -24,7 +26,7 @@ export async function getWar(params) {
  * @returns {Promise.<*|AxiosPromise<T>>}
  */
 export async function getHj(params) {
-  return rs.http.post('/StockProductWarehouse/GetHj', params);
+  return rs.http.post(erpApi + '/StockProductWarehouse/GetHj', params);
 }
 
 /**
@@ -33,5 +35,5 @@ export async function getHj(params) {
  * @returns {Promise.<*|AxiosPromise<T>>}
  */
 export async function changeHj(params) {
-  return rs.http.post('/StockProductWarehouse/ChangeHj', params);
+  return rs.http.post(erpApi + '/StockProductWarehouse/ChangeHj', params);
 }

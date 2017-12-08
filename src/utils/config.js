@@ -7,12 +7,14 @@ const config = {
     api: 'http://api.lpole.com',
     url: 'http://polecs.lpole.com:8080',
     dataApi: 'http://api.lpole.com/Api/V1',
+    fxApi:'http://fxServer.lpole.com/api',
     imgUrl: 'http://erpimg1.polelong.com',
   },
   prod: {
     api: 'http://erp.polelong.com',
     url: 'http://polecs.polelong.com',
     dataApi: 'http://erp.polelong.com/Api/V1',
+    fxApi:'http://fxServer.polelong.com/api',
     imgUrl: 'http://erpimg1.polelong.com',
   },
   getConfig(key) {

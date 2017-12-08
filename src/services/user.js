@@ -1,24 +1,26 @@
 import request from '../utils/request';
 import rs from '../rs/';
 
+const erpApi = rs.config.getConfig('dataApi');
+
 export async function getLoginUser() {
-  return rs.http.post("/Login/GetUser");
+  return rs.http.post(erpApi + "/Login/GetUser");
 }
 
 export async function login(params) {
-  return rs.http.post("/Login/Login", params);
+  return rs.http.post(erpApi + "/Login/Login", params);
 }
 
 export async function logout(params) {
-  return rs.http.post("/Login/Logout", params);
+  return rs.http.post(erpApi + "/Login/Logout", params);
 }
 
 export async function getUserMenu() {
-  return rs.http.post("/Role/GetUserMenu");
+  return rs.http.post(erpApi + "/Role/GetUserMenu");
 }
 
 export async function validRole(params) {
-  return rs.http.post("/Role/ValidRole", params);
+  return rs.http.post(erpApi + "/Role/ValidRole", params);
 }
 
 export async function query() {

@@ -4,7 +4,6 @@ import config from './config';
 import loadingService from '../rs/util/loadingService';
 
 const ajax = axios.create({
-  baseURL: config.getConfig('dataApi'),
   timeout: 30000,
   headers: {
     'X-Requested-With': 'XMLHttpRequest',
