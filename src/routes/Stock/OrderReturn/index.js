@@ -118,6 +118,11 @@ export default class StockProductSku extends PureComponent {
             if (record.status === 0) {
               const dateTime = new Date(parseInt(record.createDate.substring(6
                 , record.createDate.length - 2)));
+              const  currentDate = new Date();
+              const  dif = (currentDate.getTime() - dateTime.getTime()) / (24 * 60 * 60 * 1000);
+              if (dif < 20) {
+                return "大于10天";
+              }
               return (<
                 CountDown
                 format={time => {
