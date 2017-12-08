@@ -199,7 +199,7 @@ export default class StockOutStock extends PureComponent {
         list: [],
         total: 0,
       },
-      pageIndex: rs.util.lib.defaultValue(page, pageIndex),
+      pageIndex: page||pageIndex
     }).then(() => {
       form.validateFields((err, fieldsValue) => {
         if (err) return;
