@@ -86,6 +86,7 @@ class BasicLayout extends React.PureComponent {
   }
 
   onCollapse = (collapsed) => {
+
     this.props.dispatch({
       type: 'global/changeLayoutCollapsed',
       payload: collapsed,
@@ -115,6 +116,7 @@ class BasicLayout extends React.PureComponent {
       return [this.menus[0].key];
     }
     return keys;
+
   }
 
   getNavMenuItems(menusData, parentPath = '') {
@@ -213,6 +215,7 @@ class BasicLayout extends React.PureComponent {
   }
 
   handleOpenChange = (openKeys) => {
+    console.log(openKeys)
     const latestOpenKey = openKeys.find(key => this.state.openKeys.indexOf(key) === -1);
     this.setState({
       openKeys: latestOpenKey ? [latestOpenKey] : [],
@@ -220,15 +223,21 @@ class BasicLayout extends React.PureComponent {
   }
   toggle = () => {
     const {collapsed} = this.props;
+    console.log(collapsed)
+    if (!collapsed) {
+      this.setState({
+        openKeys: []
+      })
+   }
     this.props.dispatch({
       type: 'global/changeLayoutCollapsed',
       payload: !collapsed,
     });
-    this.resizeTimeout = setTimeout(() => {
-      const event = document.createEvent('HTMLEvents');
-      event.initEvent('resize', true, false);
-      window.dispatchEvent(event);
-    }, 600);
+    // this.resizeTimeout = setTimeout(() => {
+    //   const event = document.createEvent('HTMLEvents');
+    //   event.initEvent('resize', true, false);
+    //   window.dispatchEvent(event);
+    // }, 600);
   }
   handleNoticeClear = (type) => {
     message.success(`清空了${type}`);
@@ -271,9 +280,7 @@ class BasicLayout extends React.PureComponent {
     const noticeData = this.getNoticeData();
 
     // Don't show popup menu when it is been collapsed
-    const menuProps = collapsed ? {} : {
-      openKeys: this.state.openKeys,
-    };
+    // const MenuProps=!collapsed?{ openKeys:this.state.openKeys}:{}
 
     const layout = (
       <Layout>
@@ -295,10 +302,11 @@ class BasicLayout extends React.PureComponent {
           <Menu
             theme="dark"
             mode="inline"
-            {...menuProps}
+            openKeys={this.state.openKeys}
             onOpenChange={this.handleOpenChange}
             selectedKeys={this.getCurrentMenuSelectedKeys()}
             style={{margin: '16px 0', width: '100%'}}
+            inlineCollapsed={this.state.collapsed}
           >
             {this.getNavMenuItems(this.menus)}
           </Menu>

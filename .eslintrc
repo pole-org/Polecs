@@ -124,6 +124,7 @@
     "react/sort-comp": 0,
     "react/react-in-jsx-scope": 0,
     "react/jsx-curly-spacing":0,
+    "padded-blocks":0,
     "key-spacing": 0,
     "default-case": 0,
     "camelcase": 0,

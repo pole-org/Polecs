@@ -19,12 +19,13 @@ class ProductInfo extends React.Component {
     this.getImg();
   }
 
-  componentWillReceiveProps(nextProps) {
-    this.getImg(nextProps.proId);
-  }
-
-  componentWillUnmount() {
-  }
+  //
+  // componentWillReceiveProps(nextProps) {
+  //   this.getImg(nextProps.proId);
+  // }
+  //
+  // componentWillUnmount() {
+  // }
 
 
   getImg = (proId) => {
