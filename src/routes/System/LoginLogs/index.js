@@ -19,6 +19,8 @@ import {
   Radio,
   Popconfirm,
   DatePicker,
+  Row,
+  Col,
 } from 'antd';
 import CountDown from 'ant-design-pro/lib/CountDown';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
@@ -73,6 +75,11 @@ export default class  extends PureComponent {
         key: 'ip',
       },
       {
+        title:'地址信息',
+        dataIndex:'location',
+        key:'location'
+      },
+      {
         title: '登录App',
         dataIndex: 'app',
         key: 'app',
@@ -108,11 +115,12 @@ export default class  extends PureComponent {
         list: [],
         total: 0,
       },
-      pageIndex: rs.util.lib.defaultValue(page, pageIndex)
+      pageIndex: page || pageIndex
     }).then(() => {
       form.validateFields((err, fieldsValue) => {
         if (err) return;
         fieldsValue.startDate = rs.util.string.isNullOrEmpty(fieldsValue.startDate) ? null : fieldsValue.startDate.format('YYYY-MM-DD');
+        fieldsValue.endDate = rs.util.string.isNullOrEmpty(fieldsValue.endDate) ? null : fieldsValue.endDate.format('YYYY-MM-DD');
         model.dispatch({
           type: 'load',
           payload: {
@@ -138,40 +146,49 @@ export default class  extends PureComponent {
     ]
     return (
       <Form layout="inline">
-        <FormItem label="开始时间">
-          {getFieldDecorator('startDate', {})(
-            <DatePicker foramt="YYYY-MM-DD HH:MM:SS" style={{width: 200}} placeholder="请选择开始时间"/>
-          )}
-        </FormItem>
-        <FormItem label="用户名">
-          {getFieldDecorator('userName', {
-            initialValue: '',
-          })(
-            <Input placeholder="请输入用户名"/>
-          )}
-        </FormItem>
-        <FormItem label="ip">
-          {getFieldDecorator('ip', {
-            initialValue: '',
-          })(
-            <Input placeholder="请输入ip地址"/>
-          )}
-        </FormItem>
-        <FormItem label="操作系统">
-          {getFieldDecorator('platformList', {
-            initialValue: [],
-          })(
-            <CheckGroup options={platformOption}/>
-          )}
-        </FormItem>
-        <FormItem>
-          <Button
-            type="primary"
-            icon="search"
-            onClick={() => this.handleSearch(1)}
-          >查询
-          </Button>
-        </FormItem>
+        <Row>
+          <FormItem label="开始时间">
+            {getFieldDecorator('startDate', {})(
+              <DatePicker foramt="YYYY-MM-DD HH:MM:SS" style={{width: 200}} placeholder="请选择开始时间"/>
+            )}
+          </FormItem>
+          <FormItem label="结束时间">
+            {getFieldDecorator('endDate', {})(
+              <DatePicker foramt="YYYY-MM-DD HH:MM:SS" style={{width: 200}} placeholder="请选择结束时间"/>
+            )}
+          </FormItem>
+          <FormItem label="用户名">
+            {getFieldDecorator('userName', {
+              initialValue: '',
+            })(
+              <Input placeholder="请输入用户名"/>
+            )}
+          </FormItem>
+          <FormItem label="ip">
+            {getFieldDecorator('ip', {
+              initialValue: '',
+            })(
+              <Input placeholder="请输入ip地址"/>
+            )}
+          </FormItem>
+        </Row>
+        <Row>
+          <FormItem label="操作系统">
+            {getFieldDecorator('platformList', {
+              initialValue: [],
+            })(
+              <CheckGroup options={platformOption}/>
+            )}
+          </FormItem>
+          <FormItem>
+            <Button
+              type="primary"
+              icon="search"
+              onClick={() => this.handleSearch(1)}
+            >查询
+            </Button>
+          </FormItem>
+        </Row>
       </Form>
     );
   }
