@@ -203,8 +203,24 @@ export default class OutStockApplyDetail extends Component {
   }
 
   componentDidMount() {
+    const {model, location, outStock: {detail}} = this.props;
     this.setStepDirection();
     window.addEventListener('resize', this.setStepDirection);
+    const match = rs.util.url.match('/stock/outStock/detail/:id', location.pathname)
+    model.setState({
+      detail: {
+        ...detail,
+        skuList: []
+      }
+    }).then(() => {
+      model.dispatch({
+        type: 'loadDetail',
+        payload: {
+          applySerial: match[1]
+        }
+      })
+    });
+
   }
 
   componentWillUnmount() {

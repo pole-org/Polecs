@@ -152,25 +152,24 @@ export default modelExtend(BaseModel, {
     setup({history, dispatch}) {
       // Subscribe history(url) change, trigger `load` action if pathname is `/`
       return history.listen(({pathname}) => {
-        const match = pathToRegExp('/stock/outStock/detail/:id').exec(pathname);
-        if (match) {
-          dispatch({
-            type: 'setStateOk',
-            payload: {
-              data: {
-                list: [],
-                count: 0,
-              },
-            }
-          }).then(res => {
-            dispatch({
-              type: 'loadDetail',
-              payload: {
-                applySerial: match[1],
-              },
-            });
-          });
-        }
+        // const match = pathToRegExp('/stock/outStock/detail/:id').exec(pathname);
+        // if (match) {
+        //   dispatch({
+        //     type: 'setStateOk',
+        //     payload: {
+        //       data: {
+        //         list: [],
+        //         count: 0,
+        //       },
+        //     }
+        //   });
+        //   dispatch({
+        //     type: 'loadDetail',
+        //     payload: {
+        //       applySerial: match[1],
+        //     },
+        //   });
+        // }
       });
     },
 
