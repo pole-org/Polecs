@@ -155,19 +155,20 @@ export default modelExtend(BaseModel, {
         const match = pathToRegExp('/stock/outStock/detail/:id').exec(pathname);
         if (match) {
           dispatch({
-            type:'setState',
-            payload:{
+            type: 'setStateOk',
+            payload: {
               data: {
                 list: [],
                 count: 0,
               },
             }
-          });
-          dispatch({
-            type: 'loadDetail',
-            payload: {
-              applySerial: match[1],
-            },
+          }).then(res => {
+            dispatch({
+              type: 'loadDetail',
+              payload: {
+                applySerial: match[1],
+              },
+            });
           });
         }
       });
