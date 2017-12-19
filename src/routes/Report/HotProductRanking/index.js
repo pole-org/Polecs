@@ -175,23 +175,22 @@ export default class extends PureComponent {
 
   handleSearch = () => {
     const {form, model} = this.props;
-    form.validateFields((err, fieldsValue) => {
-      if (err) return;
-      const values = {
-        startDate: fieldsValue.startDate ? fieldsValue.startDate.format('YYYY-MM-DD') : null,
-        endDate: fieldsValue.endDate ? fieldsValue.endDate.format('YYYY-MM-DD') : null,
-        showCount: fieldsValue.showCount,
-        orderColumn: fieldsValue.orderColumn,
-        orderType: fieldsValue.orderType,
-        conditionColumn: fieldsValue.conditionColumn,
-        condition: fieldsValue.condition,
-      };
-      console.log(fieldsValue.conditionColumn)
-      model.setState({
-        hotProductRanking: {
-          list: [],
-        },
-      }).then(() => {
+    model.setState({
+      hotProductRanking: {
+        list: [],
+      },
+    }).then(() => {
+      form.validateFields((err, fieldsValue) => {
+        if (err) return;
+        const values = {
+          startDate: fieldsValue.startDate ? fieldsValue.startDate.format('YYYY-MM-DD') : null,
+          endDate: fieldsValue.endDate ? fieldsValue.endDate.format('YYYY-MM-DD') : null,
+          showCount: fieldsValue.showCount,
+          orderColumn: fieldsValue.orderColumn,
+          orderType: fieldsValue.orderType,
+          conditionColumn: fieldsValue.conditionColumn,
+          condition: fieldsValue.condition,
+        };
         model.call('fetchHotProductRanking', values);
       });
     });
@@ -307,7 +306,7 @@ export default class extends PureComponent {
 
   render() {
     const {model} = this.props;
-    const {[model.name]: {hotProductRanking: {list}}, loading} = this.props;
+    const {report: {hotProductRanking: {list}}, loading} = this.props;
     return (
       <PageHeaderLayout >
         <div className="report-table">
