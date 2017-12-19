@@ -1,7 +1,8 @@
 import axios from 'axios';
 import {message} from 'antd';
-import config from './config';
+import cookie from 'js-cookie'
 import loadingService from '../rs/util/loadingService';
+
 
 const ajax = axios.create({
   timeout: 30000,
@@ -14,7 +15,7 @@ const ajax = axios.create({
 
 
 ajax.interceptors.response.use((res) => {
-  if (res.status === 207) {
+  if (res.status === 202) {
     setTimeout(() => {
       loadingService.done();
       window.location.href = `#/user/login?from=#/home/desktop`;
@@ -26,10 +27,8 @@ ajax.interceptors.response.use((res) => {
         message.error(res.data.msg);
       }
       loadingService.done();
-      return Promise.resolve(res.data);
-    } else {
-      return Promise.resolve(res.data);
     }
+    return Promise.resolve(res.data);
   }
 }, (err) => {
   setTimeout(() => {
@@ -43,7 +42,7 @@ const http = {
     return ajax.post(url, params);
   },
   get(url, params) {
-    return ajax.get(url, params);
+    return ajax.get(url, {params});
   },
 }
 

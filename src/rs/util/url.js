@@ -1,7 +1,7 @@
 import qs from 'qs';
 import pathToRegExp from 'path-to-regexp';
 
-const url = {}
+const url = {};
 
 /**
  * 获取url参数

@@ -308,7 +308,6 @@ export default class StockOutStock extends PureComponent {
             {this.renderForm()}
           </div>
           <Table
-            size="middle"
             columns={columns}
             loading={loading.effects[`${model.name}/loadList`]}
             dataSource={list}

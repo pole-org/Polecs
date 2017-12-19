@@ -19,6 +19,7 @@
     "test:all": "node ./tests/run-tests.js"
   },
   "dependencies": {
+    "@antv/g2": "^3.0.2-beta.1",
     "ant-design-pro": "^0.2.3-rc.1",
     "antd": "^3.0.0",
     "axios": "^0.17.0",

@@ -231,10 +231,10 @@ export default class StockProductSku extends PureComponent {
             <div>
               <a onClick={() => this.openInstockModal(record)}>收货入库</a>
               {record.type === 0 ? [
-                <Divider type="vertical" />,
+                <Divider type="vertical"/>,
                 <a onClick={() => this.openPurchaseModal(record)}>结算成本</a>] : null
               }
-              <Divider type="vertical" />
+              <Divider type="vertical"/>
               <MoreBtn/>
             </div>
           );
@@ -258,7 +258,7 @@ export default class StockProductSku extends PureComponent {
         list: [],
         total: 0,
       },
-      pageIndex: page === undefined ? pageIndex : page,
+      pageIndex: page || pageIndex,
     }).then(() => {
       form.validateFields((err, fieldsValue) => {
         if (err) return;
