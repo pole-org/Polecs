@@ -532,7 +532,7 @@ export default class StockProductSku extends PureComponent {
       <Table
         rowkey="id"
         columns={columns}
-        size="middle"
+        size="default"
         loading={loading.effects[`${model.name}/load`]}
         dataSource={list}
         pagination={pagination({pageIndex, pageSize, total}, this.handleSearch)}

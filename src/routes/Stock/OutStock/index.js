@@ -180,6 +180,16 @@ export default class StockOutStock extends PureComponent {
     this.handleSearch();
   }
 
+  componentWillUnmount() {
+    const {model} = this.props;
+    model.setState({
+      data: {
+        list: [],
+        total: 0,
+      }
+    })
+  }
+
   showDetail = (serialNo) => {
     const {model} = this.props;
     model.dispatch({
@@ -199,7 +209,7 @@ export default class StockOutStock extends PureComponent {
         list: [],
         total: 0,
       },
-      pageIndex: page||pageIndex
+      pageIndex: page || pageIndex
     }).then(() => {
       form.validateFields((err, fieldsValue) => {
         if (err) return;

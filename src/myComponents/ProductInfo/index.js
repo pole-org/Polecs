@@ -53,7 +53,7 @@ class ProductInfo extends React.Component {
     return (
       <div onClick={() => this.openModal()}>
         {this.state.loading ?
-          <img src={rs.config.defaultImage} alt="LOADING"/> :
+          <div style={{width: 40, height: 40, margin: 'auto'}}><img src={rs.config.defaultImage} alt="LOADING"/></div> :
           <img alt="" style={{width: 40, height: 40, cursor: 'pointer'}} src={this.state.smUrl}/>
         }
         {this.state.visible ?
