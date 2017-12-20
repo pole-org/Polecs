@@ -150,6 +150,15 @@ export default class extends PureComponent {
     this.handleSearch()
   }
 
+  componentWillUnmount() {
+    const {model} = this.props;
+    model.setState({
+      hotProductRanking: {
+        list: [],
+      },
+    });
+  }
+
   getPercentRange = (one, two) => {
     if (two === 0 || two === null) {
       return null;

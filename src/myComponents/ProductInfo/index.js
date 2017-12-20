@@ -1,7 +1,8 @@
 import React from 'react';
-import {Modal} from 'antd';
+import {Modal, Spin} from 'antd';
 import $ from 'jquery';
 import rs from '../../rs/';
+import http from '../../utils/http';
 
 class ProductInfo extends React.Component {
   constructor(props) {
@@ -11,6 +12,7 @@ class ProductInfo extends React.Component {
       smUrl: null,
       bgUrl: null,
       visible: false,
+      loading: true,
     };
   }
 
@@ -19,29 +21,18 @@ class ProductInfo extends React.Component {
     this.getImg();
   }
 
-  //
-  // componentWillReceiveProps(nextProps) {
-  //   this.getImg(nextProps.proId);
-  // }
-  //
-  // componentWillUnmount() {
-  // }
-
-
   getImg = (proId) => {
-    $.ajax({
-      type: 'post',
-      url: `${rs.config.getConfig('dataApi')}/ProductImg/getProImg`,
-      data: {
-        proId: proId === undefined ? this.props.proId : proId,
-      },
-      async: false,
-      success: (res) => {
+    http.get(`${rs.config.getConfig('fxApi')}/Product/GetProductImageByID`, {
+      productID: proId === undefined ? this.props.proId : proId,
+    }).then(res => {
+      if (res.model) {
+        const data = JSON.parse(res.model);
         this.setState({
-          smUrl: res.smUrl,
-          bgUrl: res.bgUrl,
+          smUrl: data.smUrl,
+          bgUrl: data.bgUrl,
+          loading: false,
         });
-      },
+      }
     });
   }
 
@@ -61,7 +52,10 @@ class ProductInfo extends React.Component {
   render() {
     return (
       <div onClick={() => this.openModal()}>
-        <img alt="" style={{width: 40, height: 40, cursor: 'pointer'}} src={this.state.smUrl}/>
+        {this.state.loading ?
+          <img src={rs.config.defaultImage} alt="LOADING"/> :
+          <img alt="" style={{width: 40, height: 40, cursor: 'pointer'}} src={this.state.smUrl}/>
+        }
         {this.state.visible ?
           <Modal
             footer={null}
