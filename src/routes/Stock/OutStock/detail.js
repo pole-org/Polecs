@@ -76,6 +76,8 @@ export default class OutStockApplyDetail extends Component {
       {
         title: '图片',
         dataIndex: 'pro-img',
+        className: 'align-center',
+        width: 60,
         key: 'pro-img',
         render: (text, record) => {
           return (<ProductInfo proId={record.proId}/>);

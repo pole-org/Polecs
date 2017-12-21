@@ -1,6 +1,6 @@
 module.exports={
   name: '报表中心',
-  icon: 'windows',
+  icon: 'area-chart',
   path: 'report',
   fullPath: '/report',
   code: 'report',
