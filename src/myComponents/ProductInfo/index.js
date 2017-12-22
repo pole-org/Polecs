@@ -25,7 +25,7 @@ class ProductInfo extends React.Component {
     http.get(`${rs.config.getConfig('fxApi')}/Product/GetProductImageByID`, {
       productID: proId === undefined ? this.props.proId : proId,
     }).then(res => {
-      if (res.model) {
+      if (res) {
         const data = JSON.parse(res.model);
         this.setState({
           smUrl: data.smUrl,
