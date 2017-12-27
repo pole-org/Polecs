@@ -1,6 +1,6 @@
 import React from 'react';
 import {Modal, Spin} from 'antd';
-import $ from 'jquery';
+import axios from 'axios';
 import rs from '../../rs/';
 import http from '../../utils/http';
 
@@ -22,17 +22,33 @@ class ProductInfo extends React.Component {
   }
 
   getImg = (proId) => {
-    http.get(`${rs.config.getConfig('fxApi')}/Product/GetProductImageByID`, {
-      productID: proId === undefined ? this.props.proId : proId,
+    axios.create({
+      timeout: 30000,
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        'Content-Type': 'application/json',
+      },
+      withCredentials: true,
+    }).get(`${rs.config.getConfig('fxApi')}/Product/GetProductImageByID`, {
+      params: {
+        productID: proId === undefined ? this.props.proId : proId,
+      }
     }).then(res => {
-      if (res) {
-        const data = JSON.parse(res.model);
+      if (res.data.model) {
+        const data = JSON.parse(res.data.model);
         this.setState({
           smUrl: data.smUrl,
           bgUrl: data.bgUrl,
           loading: false,
         });
       }
+      this.setState({
+        loading: false,
+      });
+    }).catch(() => {
+      this.setState({
+        loading: false,
+      });
     });
   }
 

@@ -2,6 +2,7 @@ import axios from 'axios';
 import {message} from 'antd';
 import cookie from 'js-cookie'
 import loadingService from '../rs/util/loadingService';
+import config from '../utils/config';
 
 
 const ajax = axios.create({
@@ -18,7 +19,7 @@ ajax.interceptors.response.use((res) => {
   if (res.status === 202) {
     setTimeout(() => {
       loadingService.done();
-      window.location.href = `#/user/login?from=#/home/desktop`;
+      window.location.href = `${config.getConfig('loginServer')}?app=Erp&from=${config.getConfig('url')}#/home/desktop`;
     }, 0);
     return false;
   } else {

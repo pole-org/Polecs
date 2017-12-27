@@ -2,6 +2,7 @@ import request from '../utils/request';
 import rs from '../rs/';
 
 const erpApi = rs.config.getConfig('dataApi');
+const fxService = rs.config.getConfig('fxService');
 
 export async function getLoginUser() {
   return rs.http.post(erpApi + "/Login/GetUser");
@@ -11,8 +12,8 @@ export async function login(params) {
   return rs.http.post(erpApi + "/Login/Login", params);
 }
 
-export async function logout(params) {
-  return rs.http.post(erpApi + "/Login/Logout", params);
+export async function logout() {
+  return rs.http.post(fxService + "/User/Login/SignOut");
 }
 
 export async function getUserMenu() {

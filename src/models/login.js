@@ -1,6 +1,7 @@
 import {routerRedux} from 'dva/router';
 import {fakeMobileLogin} from '../services/api';
 import {login, logout} from '../services/user';
+import rs from '../rs/'
 
 export default {
   namespace: 'login',
@@ -43,8 +44,8 @@ export default {
     },
     *logout(_, {call, put}) {
       const data = yield call(logout)
-      if (data) {
-        window.location.href = `#/user/login?from=${window.location.hash}`;
+      if (data.success) {
+        window.location.href = `${rs.config.getConfig('loginServer')}?app=Erp&from=${rs.config.getConfig('url') + window.location.hash}`;
       }
     },
   },
