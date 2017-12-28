@@ -12,7 +12,7 @@ const config = {
     fxService: 'http://fxServer.lpole.com',
     fxApi: 'http://fxServer.lpole.com/api',
     imgUrl: 'http://erpimg1.polelong.com',
-    loginServer: 'http://localhost:8001/#/user/login',
+    loginServer: 'http://login.lpole.com/#/user/login',
   },
   prod: {
     api: 'http://erp.polelong.com',
