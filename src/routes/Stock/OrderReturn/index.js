@@ -631,7 +631,7 @@ export default class StockProductSku extends PureComponent {
               required: true, message: '请填写退货数量',
             }],
           })(
-            <InputNumber min={1} max={this.state.record.proNum}/>
+            <InputNumber min={1} max={this.state.record.proNum+5}/>
           )}
         </FormItem>
       </Form>
