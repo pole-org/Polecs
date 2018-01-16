@@ -41,6 +41,17 @@ export default class TableList extends PureComponent {
         },
       },
       {
+        title: '交易额',
+        dataIndex: 'tradeMoney',
+        key: 'tradeMoney',
+        width: 150,
+        sorter: (a, b) => a.tradeMoney - b.tradeMoney,
+        render: (text) => {
+          text = text === null ? 0 : text;
+          return (<span>{'$ ' + text}</span>);
+        },
+      },
+      {
         title: '预计交易额',
         dataIndex: 'planMoney',
         key: 'planMoney',
@@ -171,6 +182,7 @@ export default class TableList extends PureComponent {
     const title = [
       {"value": "店铺名称", "type": "ROW_HEADER_HEADER", "datatype": "string"},
       {"value": "店铺状态", "type": "ROW_HEADER_HEADER", "datatype": "string"},
+      {"value": "交易额", "type": "ROW_HEADER_HEADER", "datatype": "number"},
       {"value": "目标额", "type": "ROW_HEADER_HEADER", "datatype": "number"},
       {"value": "实际完成", "type": "ROW_HEADER_HEADER", "datatype": "number"},
       {"value": "已取消", "type": "ROW_HEADER_HEADER", "datatype": "number"},
@@ -182,6 +194,7 @@ export default class TableList extends PureComponent {
       const obj = [
         {"value": x.shopName, "type": "ROW_HEADER"},
         {"value": this.getStatus(x.status).text, "type": "ROW_HEADER"},
+        {"value": x.tradeMoney === null ? 0 : x.tradeMoney, "type": "ROW_HEADER"},
         {"value": x.planMoney === null ? 0 : x.planMoney, "type": "ROW_HEADER"},
         {"value": x.actualMoney === null ? 0 : x.actualMoney, "type": "ROW_HEADER"},
         {"value": x.cancelMoney === null ? 0 : x.cancelMoney, "type": "ROW_HEADER"},
